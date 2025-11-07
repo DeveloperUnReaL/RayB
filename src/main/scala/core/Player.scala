@@ -3,8 +3,8 @@ import scala.math
 import java.awt.event._
 
 class Player(var x: Double, var y: Double) {
-  val rayAmount = 300 //For testing //TODO: Replace with 3d screen width
-  val fov = math.toRadians(60.0)
+  val rayAmount = 250000 //For testing //TODO: Replace with 3d screen width
+  val fov = math.toRadians(360.0)
   val rayAngleStep = fov/rayAmount
 
   var dir = math.Pi/2 //radiaaneja
