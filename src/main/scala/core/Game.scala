@@ -1,6 +1,5 @@
 package core
 import javax.swing.*
-import java.awt.*
 
 class Game(val map: Map, val player: Player) {
   val keyHandler = new KeyHandler(player)
@@ -8,6 +7,14 @@ class Game(val map: Map, val player: Player) {
 
   private var views: Vector[javax.swing.JPanel] = Vector()
   private var running: Boolean = false
+
+
+  val rayAmount = player.rayAmount
+  val fov = player.fov
+  val rayAngleStep = player.rayAngleStep
+
+  // Store every ray that is drawn in a single frame
+  var rays: Array[RayHit] = Array.empty
 
   def addView(view: JPanel) = views :+= view
 
@@ -31,7 +38,17 @@ class Game(val map: Map, val player: Player) {
     ).start()
   }
 
-  def update(delta: Double): Unit = player.update(delta, map)
+  def update(delta: Double): Unit = {
+    player.update(delta, map)
+    castAllRays()
+  }
+
+  def castAllRays(): Unit = {
+    rays = Array.tabulate(rayAmount) { i =>
+      val rayAngle = player.dir - fov / 2.0 + i * rayAngleStep
+      RayCaster.castRay(player, rayAngle, map, renderLayer = 1)
+    }
+  }
 
   def render(): Unit =
     frameCount += 1
