@@ -4,7 +4,6 @@ import java.awt.event.*
 
 class KeyHandler(player: Player) extends KeyAdapter{
   override def keyPressed(e: KeyEvent): Unit =
-    print("down")
     e.getKeyCode match
       case KeyEvent.VK_W => player.moveForward = true
       case KeyEvent.VK_A => player.moveLeft = true
@@ -15,7 +14,6 @@ class KeyHandler(player: Player) extends KeyAdapter{
       case _ => ()
 
   override def keyReleased(e: KeyEvent): Unit =
-    print("up")
     e.getKeyCode match
       case KeyEvent.VK_W => player.moveForward = false
       case KeyEvent.VK_A => player.moveLeft = false

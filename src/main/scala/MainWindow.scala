@@ -1,9 +1,6 @@
 import core.*
 import view.*
 
-import javax.swing.*
-import java.awt.*
-import java.awt.event.{KeyAdapter, KeyEvent}
 
 @main def runRayBlaster(): Unit = {
   val map = new Map()
@@ -11,9 +8,10 @@ import java.awt.event.{KeyAdapter, KeyEvent}
   val game = new Game(map, player)
 
   val view2D = new View2D(game)
-  //val view3D = new View3D(game)
+  val view3D = new View3D(game)
 
   game.addView(view2D)
+  game.addView(view3D)
 
   game.start()
 }

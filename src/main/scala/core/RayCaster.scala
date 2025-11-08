@@ -25,6 +25,7 @@ object RayCaster {
     var mapX = player.x.toInt
     var mapY = player.y.toInt
 
+    // Distance between grid lines in X and Y direction
     val deltaDistX = if dx == 0.0 then Double.PositiveInfinity else math.abs(1.0 / dx)
     val deltaDistY = if dy == 0.0 then Double.PositiveInfinity else math.abs(1.0 / dy)
 
@@ -63,17 +64,19 @@ object RayCaster {
       val far = 1000.0
       val hx = player.x + dx * far
       val hy = player.y + dy * far
-      val dist = this.dist(hx, hy, player.x, player.y)
-      RayHit(hx, hy, hit = false, dist, dist) //TODO: Fixed distance
+      val realDist = dist(player.x, player.y, hx, hy)
+      val fixedDist = realDist * math.cos(player.dir - ang) // still corrects the fisheye
+      RayHit(hx, hy, hit = false, realDist, fixedDist)
     } else {
-      val dist = if (side == 0) {
-        (mapX - player.x + (1 - stepX) / 2.0) / dx
-      } else {
-        ((mapY - player.y + (1 - stepY) / 2.0) / dy).abs
-      }
-      val hitX = player.x + dx * dist
-      val hitY = player.y + dy * dist
-      RayHit(hitX, hitY, hit = true, dist, dist) //TODO: Fixed distance
+      val realDist = if (side == 0) then (mapX - player.x + (1 - stepX) / 2.0) / dx
+      else (mapY - player.y + (1 - stepY) / 2.0) / dy
+      val hitX = player.x + dx * realDist
+      val hitY = player.y + dy * realDist
+
+      // Correct fisheye distortion (project ray on player’s view direction)
+      val fixedDist = realDist * 1 * math.cos(player.dir - ang)
+
+      RayHit(hitX, hitY, hit = true, realDist.abs, fixedDist.abs)
     }
   }
 }

@@ -5,7 +5,6 @@ import java.awt.*
 import core.*
 
 
-
 class View2D(game: Game) extends JPanel{
   private val frame = new JFrame("RayBlaster2D")
   frame.addKeyListener(game.keyHandler)

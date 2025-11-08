@@ -9,9 +9,11 @@ class Game(val map: Map, val player: Player) {
   private var running: Boolean = false
 
 
-  val rayAmount = player.rayAmount
-  val fov = player.fov
-  val rayAngleStep = player.rayAngleStep
+  val pixelsPerRay = 1
+  val screenX = 800
+  val rayAmount = screenX / pixelsPerRay
+  val fov = math.toRadians(60.0)
+  val rayAngleStep = fov/rayAmount
 
   // Store every ray that is drawn in a single frame
   var rays: Array[RayHit] = Array.empty
@@ -21,7 +23,7 @@ class Game(val map: Map, val player: Player) {
   def start(): Unit = {
     running = true
     var lastTime = System.nanoTime()
-    val fps = 30
+    val fps = 144
     val frameTime = 1e9 / fps
 
     new Thread(() =>

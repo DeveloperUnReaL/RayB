@@ -4,8 +4,6 @@ import java.awt.event._
 
 class Player(var x: Double, var y: Double) {
   val rayAmount = 1000000 //For testing //TODO: Replace with 3d screen width
-  val fov = math.toRadians(360.0)
-  val rayAngleStep = fov/rayAmount
 
   var dir = math.Pi/2 //radiaaneja
   val moveSpeed = 3.5
@@ -54,6 +52,5 @@ class Player(var x: Double, var y: Double) {
 
     if dir < 0 then dir += 2 * math.Pi
     if dir >= 2 * math.Pi then dir -= 2 * math.Pi
-    println(dir)
   }
 }
