@@ -23,7 +23,7 @@ class Game(val map: Map, val player: Player) {
   def start(): Unit = {
     running = true
     var lastTime = System.nanoTime()
-    val fps = 144
+    val fps = 60
     val frameTime = 1e9 / fps
 
     new Thread(() =>
@@ -46,7 +46,7 @@ class Game(val map: Map, val player: Player) {
   }
 
   def castAllRays(): Unit = {
-    rays = Array.tabulate(rayAmount) { i =>
+    rays = Array.tabulate(rayAmount.toInt) { i =>
       val rayAngle = player.dir - fov / 2.0 + i * rayAngleStep
       RayCaster.castRay(player, rayAngle, map, renderLayer = 1)
     }

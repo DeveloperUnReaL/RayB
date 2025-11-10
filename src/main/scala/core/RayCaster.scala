@@ -16,7 +16,7 @@ object RayCaster {
     (math.sqrt((bx-ax)*(bx-ax) + (by-ay)*(by-ay)))
 
 
-  def castRay(player: Player, angleIn: Double, map: Map, renderLayer: Int = 1, maxStep: Int = 1024): RayHit = {
+  def castRay(player: Player, angleIn: Double, map: Map, renderLayer: Int = 0, maxStep: Int = 1024): RayHit = {
     val ang = normalizeAngle(angleIn)
     val dx = math.cos(ang)
     val dy = math.sin(ang)
@@ -56,7 +56,7 @@ object RayCaster {
         side = 1
       }
 
-      if ((mapY >= 0) && (mapY < map.size) && (mapX >= 0) && (mapX < map.size) && (map.grid(mapY)(mapX) == renderLayer)) hit = true
+      if ((mapY >= 0) && (mapY < map.size) && (mapX >= 0) && (mapX < map.size) && (map.grid(1)(mapY)(mapX) == renderLayer)) hit = true
       steps += 1
     }
 
@@ -83,4 +83,4 @@ object RayCaster {
   }
 }
 
-case class RayHit(x: Double, y: Double, hit: Boolean, realDistance: Double, fixedDistance: Double, texX: Double)
+case class RayHit(x: Double, y: Double, hit: Boolean, realDistance: Double, fixedDistance: Double, texX: Double, texId: Int = 1)

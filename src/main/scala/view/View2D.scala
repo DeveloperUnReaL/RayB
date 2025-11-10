@@ -29,10 +29,10 @@ class View2D(game: Game) extends JPanel{
 
 
     /// DRAW MAP
-    for y <- map.grid.indices; x <- map.grid(y).indices do {
-      if map.grid(y)(x) == 0 then
+    for y <- map.grid(1).indices; x <- map.grid(1)(y).indices do {
+      if map.grid(1)(y)(x) == 0 then
         g.setColor(Color.WHITE)
-      if map.grid(y)(x) == 1 then
+      if map.grid(1)(y)(x) == 1 then
         g.setColor(Color.BLACK)
       g.fillRect(x * tileSize, y * tileSize, tileSize - 1, tileSize - 1)
     }
