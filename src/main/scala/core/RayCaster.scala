@@ -65,20 +65,22 @@ object RayCaster {
       val hx = player.x + dx * far
       val hy = player.y + dy * far
       val realDist = dist(player.x, player.y, hx, hy)
-      val fixedDist = realDist * math.cos(player.dir - ang) // still corrects the fisheye
-      RayHit(hx, hy, hit = false, realDist, fixedDist)
+      val fixedDist = realDist * math.cos(player.dir - ang)
+      RayHit(hx, hy, hit = false, realDist, fixedDist, texX = 0)
     } else {
       val realDist = if (side == 0) then (mapX - player.x + (1 - stepX) / 2.0) / dx
       else (mapY - player.y + (1 - stepY) / 2.0) / dy
       val hitX = player.x + dx * realDist
       val hitY = player.y + dy * realDist
+      val texX = if (side == 0) then hitY - math.floor(hitY)
+      else hitX - math.floor(hitX)
 
       // Correct fisheye distortion (project ray on player’s view direction)
       val fixedDist = realDist * 1 * math.cos(player.dir - ang)
 
-      RayHit(hitX, hitY, hit = true, realDist.abs, fixedDist.abs)
+      RayHit(hitX, hitY, hit = true, realDist.abs, fixedDist.abs, texX)
     }
   }
 }
 
-case class RayHit(x: Double, y: Double, hit: Boolean, realDistance: Double, fixedDistance: Double)
+case class RayHit(x: Double, y: Double, hit: Boolean, realDistance: Double, fixedDistance: Double, texX: Double)
