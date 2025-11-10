@@ -26,26 +26,26 @@ class Player(var x: Double, var y: Double) {
     if moveForward then {
       val nx = x + dx * moveSpeed * delta
       val ny = y + dy * moveSpeed * delta
-      if map.notSolid(nx,y,0) then x = nx //Collision
-      if map.notSolid(x,ny,0) then y = ny //Collision
+      if map.notSolid(nx,y,1) then x = nx //Collision
+      if map.notSolid(x,ny,1) then y = ny //Collision
     }
     if moveBackward then {
       val nx = x - dx * moveSpeed * delta
       val ny = y - dy * moveSpeed * delta
-      if map.notSolid(nx,y,0) then x = nx //Collision
-      if map.notSolid(x,ny,0) then y = ny //Collision
+      if map.notSolid(nx,y,1) then x = nx //Collision
+      if map.notSolid(x,ny,1) then y = ny //Collision
     }
     if moveRight then {
       val nx = x - dy * moveSpeed * delta
       val ny = y + dx * moveSpeed * delta
-      if map.notSolid(nx,y,0) then x = nx //Collision
-      if map.notSolid(x,ny,0) then y = ny //Collision
+      if map.notSolid(nx,y,1) then x = nx //Collision
+      if map.notSolid(x,ny,1) then y = ny //Collision
     }
     if moveLeft then {
       val nx = x + dy * moveSpeed * delta
       val ny = y - dx * moveSpeed * delta
-      if map.notSolid(nx,y,0) then x = nx //Collision
-      if map.notSolid(x,ny,0) then y = ny //Collision
+      if map.notSolid(nx,y,1) then x = nx //Collision
+      if map.notSolid(x,ny,1) then y = ny //Collision
     }
     if turnRight then dir += rotSpeed * delta
     if turnLeft then dir -= rotSpeed * delta
