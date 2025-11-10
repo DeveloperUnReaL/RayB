@@ -30,4 +30,9 @@ object TextureManager {
     //println(column)
     textures(id).getSubimage(column, 0, 1, tileSize)
     //textures.getOrElse(id, textures(1)) // fallback texture
+
+  def getTexturePixel(id: Int, x: Int, y: Int): Color =
+    if x < 0|| x > 15 ||y < 0|| y > 15 then println(x +" - "+ y)
+    new Color(textures(id).getRGB(x,y))
+
 }
