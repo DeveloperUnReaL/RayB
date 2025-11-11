@@ -39,6 +39,8 @@ class View2D(game: Game) extends JPanel{
       if map.grid(1)(y)(x) == 7 then // avoin ovi
         g.setColor(Color.GREEN)
       g.fillRect(x * tileSize, y * tileSize, tileSize - 1, tileSize - 1)
+      g.setColor(Color.PINK)
+      g.drawString(s"$x - $y", x * tileSize, y * tileSize)
     }
 
 

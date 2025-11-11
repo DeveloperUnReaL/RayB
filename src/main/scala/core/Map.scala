@@ -40,7 +40,7 @@ class Map:
         Array(1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1),
         Array(1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1),
         Array(1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-        Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+        Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 1),
         Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
         Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
         Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
@@ -79,7 +79,7 @@ class Map:
     val tileId = grid(lvl)(y.toInt)(x.toInt)
     !isSolid(tileId)
   }
-  
+
   def isOpaque(id: Int): Boolean = id match {
     case 7 => false
     case _ => isVisible(id)
