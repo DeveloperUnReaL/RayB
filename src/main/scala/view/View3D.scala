@@ -122,44 +122,27 @@ class View3D(game: Game) extends JPanel{
       }
     }
 
-    // seinät pitää piirtää sis kaks kertaa, eka semmoset mistä ei näy lävitte ja sit ne mistä näkyy.
-    // täs on seinät jotka näkyy
+    // Eli. Toi ray ottaa jokasen osuman listaan muistiin kunnes se löytää jonku läpinäkymättömän seinän.
+    // Nää kaikki osumat on järjestyksessä missä lähin osuma on ekana ja kaukasin osuma vikana.
+    // Pirretään jokasen rayn jokanen osuma kaukasimmasta lähimpään.
     for (i <- game.rays.indices) {
       val rayColumn = game.rays(i)
       val rayPosX = i * game.pixelsPerRay
 
-      for (hit <- rayColumn.hits if game.map.isOpaque(hit.texId)) {
+      for (hit <- rayColumn.hits.reverse) {
         val rayHeight = ((screenY / hit.fixedDistance)).toInt
         val rayTopY = (screenY / 2) - (rayHeight / 2)
 
         val texX = (hit.texX * texSize).toInt
         val texId = hit.texId
-
         val texSlice = textureCache.getOrElseUpdate((texId, texX), TextureManager.getTexture(texId, texX))
 
-        val dimness = (2.0f / (1.0f + hit.realDistance.toFloat))
-        val alpha = Math.min((dimness * 255).toInt, 255)
-
-        bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
-        //bg.setColor(new Color(0, 0, 0, 255 - alpha))
-        //bg.fillRect(rayPosX, rayTopY, game.pixelsPerRay, rayHeight)
-      }
-    }
-    // täs on läpinäkyvät seinät
-    for (i <- game.rays.indices) {
-      val rayColumn = game.rays(i)
-      val rayPosX = i * game.pixelsPerRay
-
-      for (hit <- rayColumn.hits if !game.map.isOpaque(hit.texId)) {
-        val rayHeight = ((screenY / hit.fixedDistance)).toInt
-        val rayTopY = (screenY / 2) - (rayHeight / 2)
-
-        val texX = (hit.texX * texSize).toInt
-        val texId = hit.texId
-
-        val texSlice = textureCache.getOrElseUpdate((texId, texX), TextureManager.getTexture(texId, texX))
-
-        bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
+        val isOpaque = game.map.isOpaque(texId)
+        if (!isOpaque) {
+          bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
+        } else {
+          bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
+        }
       }
     }
 

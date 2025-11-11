@@ -28,7 +28,7 @@ class Player(var x: Double, var y: Double) {
         case Some(ray) =>
           println("interact - " + ray.realDistance)
           if (ray.realDistance <= 1) {
-            val toggleTex = if (ray.texId == 6) 7 else 6
+            val toggleTex = if (ray.texId == 6) 7 else if (ray.texId == 7) 6 else ray.texId
             val hitX = ray.x + 0.01 * math.cos(dir)
             val hitY = ray.y + 0.01 * math.sin(dir)
             map.updateMap(hitX, hitY, toggleTex)

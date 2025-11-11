@@ -8,7 +8,6 @@ import scala.collection.immutable.Map as ScalaMap
 object TextureManager {
   val tileSize = 16 // your texture size in pixels
 
-
   private def loadTexture(path: String): BufferedImage = {
     println("loaded")
     val stream = Option(getClass.getResourceAsStream(path))
@@ -26,6 +25,13 @@ object TextureManager {
     7 -> loadTexture("/assets/textures/tiles/dooropen.png"),
   )
 
+  val spriteTextures: ScalaMap[Int, BufferedImage] = ScalaMap(
+    1 -> loadTexture("/assets/textures/sprites/pillar.png"),
+  )
+
+  val spriteHeight = 16 //TODO: FIX LATETR
+  val spriteWidth = 16
+
   def getTexture(id: Int) = textures.getOrElse(id, textures(1)) //TEXTURE
 
   def getTexture(id: Int, column: Int): BufferedImage = //COLUMN
@@ -36,4 +42,7 @@ object TextureManager {
   def getTexturePixel(id: Int, x: Int, y: Int): Color =
     new Color(textures(id).getRGB(x,y))
 
+  def getSprite(id: Int) = spriteTextures.getOrElse(id, textures(1))
+
+  def getSprite(id: Int, column: Int): BufferedImage = spriteTextures(id).getSubimage(column, 0, 1, spriteWidth)
 }
