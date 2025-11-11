@@ -3,6 +3,7 @@ package view
 import scala.collection.immutable.Map as ScalaMap
 import javax.swing.*
 import java.awt.*
+import java.awt.image.*
 import core.*
 
 class View3D(game: Game) extends JPanel{
@@ -15,36 +16,44 @@ class View3D(game: Game) extends JPanel{
   val texSize = TextureManager.tileSize
 
   private val textureCache = scala.collection.mutable.Map[(Int, Int), Image]()
+  private val buffer = new BufferedImage(screenX, screenY, BufferedImage.TYPE_INT_RGB)
 
   frame.setSize(screenX, screenY)
   frame.add(this)
   frame.setVisible(true)
 
-  override def paintComponent(g: Graphics): Unit = {
+  override def paintComponent(g: Graphics): Unit = { ///HUHHUHHUH. En ois uskonu et joudun kirjottaa sekä buffering että two pass rendering algoritmin :DD
     super.paintComponent(g)
+
+    val bg = buffer.getGraphics.asInstanceOf[Graphics2D]
 
     val player = game.player
 
     // background
-    g.setColor(Color.CYAN); g.fillRect(0, 0, screenX, screenY)
+    g.setColor(Color.CYAN)
+    g.fillRect(0, 0, screenX, screenY)
 
-    val dirX = math.cos(player.dir)
-    val dirY = math.sin(player.dir)
-    val planeLen = math.tan(game.fov / 2.0) // fov in rad
-    val planeX = -dirY * planeLen
-    val planeY = dirX * planeLen
-
+    // Lasketaan et mis kohtaa yhen seinän pystysuoran suikaleen alku ja loppu y on
     val wallBounds = Array.ofDim[(Int, Int)](screenX)
     for (i <- game.rays.indices) {
-      val ray = game.rays(i)
-      val rayHeight = ((screenY / ray.fixedDistance)).toInt
-      val rayPosX = i * game.pixelsPerRay
-      val rayTopY = (screenY / 2) - (rayHeight / 2)
-      val rayBottomY = rayTopY + rayHeight
-      for (px <- rayPosX until (rayPosX + game.pixelsPerRay).min(screenX)) {
-        wallBounds(px) = (rayTopY, rayBottomY)
+      val rayColumn = game.rays(i)
+      rayColumn.firstOpaqueHit(game.map) match {
+        case Some(firstHit) =>
+          val rayHeight = ((screenY / firstHit.fixedDistance)).toInt
+          val rayPosX = i * game.pixelsPerRay
+          val rayTopY = (screenY / 2) - (rayHeight / 2)
+          val rayBottomY = rayTopY + rayHeight
+          for (px <- rayPosX until (rayPosX + game.pixelsPerRay).min(screenX)) {
+            wallBounds(px) = (rayTopY, rayBottomY)
+          }
+        case None =>
+          val rayPosX = i * game.pixelsPerRay
+          for (px <- rayPosX until (rayPosX + game.pixelsPerRay).min(screenX)) {
+            wallBounds(px) = (screenY / 2, screenY / 2)
+          }
       }
     }
+
 
     val posZ = 0.5 * screenY
     for (i <- game.rays.indices) {
@@ -57,7 +66,7 @@ class View3D(game: Game) extends JPanel{
       val rayDirY = math.sin(rayAngle)
 
       var y = wallBottom
-      while (y < screenY) { /// ******* CEILING AND FLOOR
+      while (y < screenY) {// piirretään lattia
         val p = y - screenY / 2.0
         if (p > 0.0) {
           val rowDistance = posZ / p
@@ -76,8 +85,8 @@ class View3D(game: Game) extends JPanel{
             val floorTexId = game.map.grid(0)(cellY)(cellX)
             if (floorTexId != 0) {
               val floorColor = TextureManager.getTexturePixel(floorTexId, tx, ty)
-              g.setColor(floorColor)
-              g.fillRect(rayPosX, y, game.pixelsPerRay, 1)
+              bg.setColor(floorColor)
+              bg.fillRect(rayPosX, y, game.pixelsPerRay, 1)
             }
           }
         }
@@ -85,7 +94,7 @@ class View3D(game: Game) extends JPanel{
       }
 
       y = 0
-      while (y < wallTop) {
+      while (y < wallTop) { // piirretään katto
         val p = (screenY / 2.0) - y
         if (p > 0.0) {
           val rowDistance = posZ / p
@@ -104,8 +113,8 @@ class View3D(game: Game) extends JPanel{
             val ceilTexId = game.map.grid(2)(cellY)(cellX)
             if (ceilTexId != 0) {
               val ceilColor = TextureManager.getTexturePixel(ceilTexId, tx, ty)
-              g.setColor(ceilColor)
-              g.fillRect(rayPosX, y, game.pixelsPerRay, 1)
+              bg.setColor(ceilColor)
+              bg.fillRect(rayPosX, y, game.pixelsPerRay, 1)
             }
           }
         }
@@ -113,24 +122,49 @@ class View3D(game: Game) extends JPanel{
       }
     }
 
-    // draw walls
+    // seinät pitää piirtää sis kaks kertaa, eka semmoset mistä ei näy lävitte ja sit ne mistä näkyy.
+    // täs on seinät jotka näkyy
     for (i <- game.rays.indices) {
-      val ray = game.rays(i)
-      val rayHeight = ((screenY / ray.fixedDistance)).toInt
+      val rayColumn = game.rays(i)
       val rayPosX = i * game.pixelsPerRay
-      val rayTopY = (screenY / 2) - (rayHeight / 2)
 
-      val texX = (ray.texX * texSize).toInt
-      val texId = ray.texId
+      for (hit <- rayColumn.hits if game.map.isOpaque(hit.texId)) {
+        val rayHeight = ((screenY / hit.fixedDistance)).toInt
+        val rayTopY = (screenY / 2) - (rayHeight / 2)
 
-      val texSlice = textureCache.getOrElseUpdate((texId, texX), TextureManager.getTexture(texId, texX))
+        val texX = (hit.texX * texSize).toInt
+        val texId = hit.texId
 
-      val dimness = (2.0f / (1.0f + ray.realDistance.toFloat))
-      val alpha = Math.min((dimness * 255).toInt, 255)
+        val texSlice = textureCache.getOrElseUpdate((texId, texX), TextureManager.getTexture(texId, texX))
 
-      g.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
-      g.setColor(new Color(0, 0, 0, 255 - alpha))
-      g.fillRect(rayPosX, rayTopY, game.pixelsPerRay, rayHeight)
+        val dimness = (2.0f / (1.0f + hit.realDistance.toFloat))
+        val alpha = Math.min((dimness * 255).toInt, 255)
+
+        bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
+        //bg.setColor(new Color(0, 0, 0, 255 - alpha))
+        //bg.fillRect(rayPosX, rayTopY, game.pixelsPerRay, rayHeight)
+      }
     }
+    // täs on läpinäkyvät seinät
+    for (i <- game.rays.indices) {
+      val rayColumn = game.rays(i)
+      val rayPosX = i * game.pixelsPerRay
+
+      for (hit <- rayColumn.hits if !game.map.isOpaque(hit.texId)) {
+        val rayHeight = ((screenY / hit.fixedDistance)).toInt
+        val rayTopY = (screenY / 2) - (rayHeight / 2)
+
+        val texX = (hit.texX * texSize).toInt
+        val texId = hit.texId
+
+        val texSlice = textureCache.getOrElseUpdate((texId, texX), TextureManager.getTexture(texId, texX))
+
+        bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
+      }
+    }
+
+    bg.dispose()
+    g.drawImage(buffer, 0, 0, this)
+
   }
 }

@@ -22,6 +22,8 @@ object TextureManager {
     3 -> loadTexture("/assets/textures/tiles/water1.png"),
     4 -> loadTexture("/assets/textures/tiles/tiles2.png"),
     5 -> loadTexture("/assets/textures/tiles/grass1.png"),
+    6 -> loadTexture("/assets/textures/tiles/doorclosed.png"),
+    7 -> loadTexture("/assets/textures/tiles/dooropen.png"),
   )
 
   def getTexture(id: Int) = textures.getOrElse(id, textures(1)) //TEXTURE
@@ -32,7 +34,6 @@ object TextureManager {
     //textures.getOrElse(id, textures(1)) // fallback texture
 
   def getTexturePixel(id: Int, x: Int, y: Int): Color =
-    if x < 0|| x > 15 ||y < 0|| y > 15 then println(x +" - "+ y)
     new Color(textures(id).getRGB(x,y))
 
 }

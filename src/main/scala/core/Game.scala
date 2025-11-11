@@ -9,21 +9,20 @@ class Game(val map: Map, val player: Player) {
   private var running: Boolean = false
 
 
-  val pixelsPerRay = 1
+  val pixelsPerRay = 4
   val screenX = 800
   val rayAmount = screenX / pixelsPerRay
   val fov = math.toRadians(60.0)
   val rayAngleStep = fov/rayAmount
 
-  // Store every ray that is drawn in a single frame
-  var rays: Array[RayHit] = Array.empty
+  var rays: Array[RayColumn] = Array.empty
 
   def addView(view: JPanel) = views :+= view
 
   def start(): Unit = {
     running = true
     var lastTime = System.nanoTime()
-    val fps = 60
+    val fps = 30
     val frameTime = 1e9 / fps
 
     new Thread(() =>
@@ -34,6 +33,7 @@ class Game(val map: Map, val player: Player) {
 
         render()
         update(delta)
+        //println(fps)
 
         val sleep = ((frameTime - (System.nanoTime() - now)) / 1e6).toLong
         if sleep > 0 then Thread.sleep(sleep)
@@ -46,7 +46,7 @@ class Game(val map: Map, val player: Player) {
   }
 
   def castAllRays(): Unit = {
-    rays = Array.tabulate(rayAmount.toInt) { i =>
+    rays = Array.tabulate(rayAmount) { i =>
       val rayAngle = player.dir - fov / 2.0 + i * rayAngleStep
       RayCaster.castRay(player, rayAngle, map, renderLayer = 1)
     }

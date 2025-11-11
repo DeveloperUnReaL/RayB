@@ -1,5 +1,7 @@
 package core
 
+import scala.collection.mutable.ArrayBuffer
+
 object RayCaster {
   val PI = math.Pi
   val PI2 = math.Pi / 2
@@ -13,13 +15,14 @@ object RayCaster {
   }
 
   private def dist(ax: Double, ay: Double, bx: Double, by: Double) =
-    (math.sqrt((bx-ax)*(bx-ax) + (by-ay)*(by-ay)))
+    math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay))
 
-
-  def castRay(player: Player, angleIn: Double, map: Map, renderLayer: Int = 0, maxStep: Int = 1024): RayHit = {
+  def castRay(player: Player, angleIn: Double, map: Map, renderLayer: Int = 1, maxStep: Int = 1024): RayColumn = {
     val ang = normalizeAngle(angleIn)
     val dx = math.cos(ang)
     val dy = math.sin(ang)
+
+    val hits = ArrayBuffer[RayHit]()
 
     // Players map square
     var mapX = player.x.toInt
@@ -41,11 +44,13 @@ object RayCaster {
       else (player.y - mapY) * deltaDistY
     }
 
-    var hit = false
-    var side = 0 // 0 -> Vertical hit (X-side), 1 -> Horizontal hit (Y-side)
+    //var hit = false
+    //var side = 0 // 0 -> Vertical hit (X-side), 1 -> Horizontal hit (Y-side)
+    var foundOpaque = false
     var steps = 0
 
-    while (!hit && steps < maxStep) {
+    while (!foundOpaque && steps < maxStep) { // Eli otetaan jokanen osuma muistiin että saadaan noi läpinäkyvätki renderöityä
+      var side = 0
       if sideDistX < sideDistY then {
         sideDistX += deltaDistX
         mapX += stepX
@@ -56,31 +61,38 @@ object RayCaster {
         side = 1
       }
 
-      if ((mapY >= 0) && (mapY < map.size) && (mapX >= 0) && (mapX < map.size) && (map.grid(1)(mapY)(mapX) == renderLayer)) hit = true
+      if (mapY >= 0 && mapY < map.size && mapX >= 0 && mapX < map.size) {
+        val tileId = map.grid(renderLayer)(mapY)(mapX)
+
+        if (map.isVisible(tileId)) {
+          val realDist = if (side == 0) then (mapX - player.x + (1 - stepX) / 2.0) / dx
+          else (mapY - player.y + (1 - stepY) / 2.0) / dy
+
+          val hitX = player.x + dx * realDist
+          val hitY = player.y + dy * realDist
+          val texX = if (side == 0) then hitY - math.floor(hitY)
+          else hitX - math.floor(hitX)
+
+          val fixedDist = realDist * math.cos(player.dir - ang)
+
+          hits += RayHit(hitX, hitY, realDist.abs, fixedDist.abs, texX, tileId)
+
+          if (map.isOpaque(tileId)) {
+            foundOpaque = true
+          }
+        }
+      }
       steps += 1
     }
 
-    if (!hit) {
-      val far = 1000.0
-      val hx = player.x + dx * far
-      val hy = player.y + dy * far
-      val realDist = dist(player.x, player.y, hx, hy)
-      val fixedDist = realDist * math.cos(player.dir - ang)
-      RayHit(hx, hy, hit = false, realDist, fixedDist, texX = 0)
-    } else {
-      val realDist = if (side == 0) then (mapX - player.x + (1 - stepX) / 2.0) / dx
-      else (mapY - player.y + (1 - stepY) / 2.0) / dy
-      val hitX = player.x + dx * realDist
-      val hitY = player.y + dy * realDist
-      val texX = if (side == 0) then hitY - math.floor(hitY)
-      else hitX - math.floor(hitX)
-
-      // Correct fisheye distortion (project ray on player’s view direction)
-      val fixedDist = realDist * 1 * math.cos(player.dir - ang)
-
-      RayHit(hitX, hitY, hit = true, realDist.abs, fixedDist.abs, texX)
-    }
+    RayColumn(hits.toArray)
   }
 }
 
-case class RayHit(x: Double, y: Double, hit: Boolean, realDistance: Double, fixedDistance: Double, texX: Double, texId: Int = 1)
+
+case class RayHit(x: Double, y: Double, realDistance: Double, fixedDistance: Double, texX: Double, texId: Int = 1)
+case class RayColumn(hits: Array[RayHit]) {
+  def firstHit: Option[RayHit] = hits.headOption
+  def firstOpaqueHit(map: Map): Option[RayHit] = hits.find(hit => map.isOpaque(hit.texId))
+  def hasHit: Boolean = hits.nonEmpty
+}

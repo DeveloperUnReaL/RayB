@@ -9,6 +9,7 @@ class KeyHandler(player: Player) extends KeyAdapter{
       case KeyEvent.VK_A => player.moveLeft = true
       case KeyEvent.VK_S => player.moveBackward = true
       case KeyEvent.VK_D => player.moveRight = true
+      case KeyEvent.VK_E => player.interact = true
       case KeyEvent.VK_LEFT => player.turnLeft = true
       case KeyEvent.VK_RIGHT => player.turnRight = true
       case _ => ()
@@ -19,6 +20,7 @@ class KeyHandler(player: Player) extends KeyAdapter{
       case KeyEvent.VK_A => player.moveLeft = false
       case KeyEvent.VK_S => player.moveBackward = false
       case KeyEvent.VK_D => player.moveRight = false
+      case KeyEvent.VK_E => player.interact = false
       case KeyEvent.VK_LEFT => player.turnLeft = false
       case KeyEvent.VK_RIGHT => player.turnRight = false
       case _ => ()

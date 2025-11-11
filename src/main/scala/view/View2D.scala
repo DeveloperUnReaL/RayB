@@ -34,6 +34,10 @@ class View2D(game: Game) extends JPanel{
         g.setColor(Color.WHITE)
       if map.grid(1)(y)(x) == 1 then
         g.setColor(Color.BLACK)
+      if map.grid(1)(y)(x) == 6 then // suljettu ovi
+        g.setColor(Color.BLUE)
+      if map.grid(1)(y)(x) == 7 then // avoin ovi
+        g.setColor(Color.GREEN)
       g.fillRect(x * tileSize, y * tileSize, tileSize - 1, tileSize - 1)
     }
 
@@ -42,9 +46,10 @@ class View2D(game: Game) extends JPanel{
     g.setColor(Color.GREEN)
     val px = (player.x * tileSize).toInt
     val py = (player.y * tileSize).toInt
-    for (ray <- game.rays) {
-      g.drawLine(px, py, (ray.x * tileSize).toInt, (ray.y * tileSize).toInt)
+    for (rayColumn <- game.rays) {
+      rayColumn.firstOpaqueHit(map).foreach( hit => g.drawLine(px, py, (hit.x * tileSize).toInt, (hit.y * tileSize).toInt))
     }
+
 
 
     /// DRAW PLAYER

@@ -1,9 +1,10 @@
 package core
 import scala.math
+import RayCaster.castRay
 import java.awt.event._
 
 class Player(var x: Double, var y: Double) {
-  val rayAmount = 1000000 //For testing //TODO: Replace with 3d screen width
+  //val rayAmount = 1000000 //For testing
 
   var dir = math.Pi/2 //radiaaneja
   val moveSpeed = 3.5
@@ -13,6 +14,7 @@ class Player(var x: Double, var y: Double) {
   var moveBackward: Boolean = false
   var moveLeft: Boolean = false
   var moveRight: Boolean = false
+  var interact: Boolean = false
   ///TODO: Mouse turning?
   var turnLeft: Boolean = false
   var turnRight: Boolean = false
@@ -20,6 +22,23 @@ class Player(var x: Double, var y: Double) {
   def update(delta: Double, map: Map): Unit = {
     val dx = math.cos(dir)
     val dy = math.sin(dir)
+
+    if interact then {
+      castRay(this, dir, map, 1, 1000).firstHit match {
+        case Some(ray) =>
+          println("interact - " + ray.realDistance)
+          if (ray.realDistance <= 1) {
+            if (ray.texId == 6) {
+              map.updateMap(ray.x, ray.y, 7)
+            } else if (ray.texId == 7) {
+              map.updateMap(ray.x, ray.y, 6)
+            }
+            interact = false
+          }
+        case None => ???
+      }
+    }
+
 
     // Jos joku lukee tätä koodia ni tää delta on aina sitä varten et se liikkumisnopeus ei riipu siitä miten usein ruutu päivitetään
     ///TODO: Diagonal movement speed
