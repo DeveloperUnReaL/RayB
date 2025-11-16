@@ -52,8 +52,12 @@ class View2D(game: Game) extends JPanel{
       rayColumn.firstOpaqueHit(map).foreach( hit => g.drawLine(px, py, (hit.x * tileSize).toInt, (hit.y * tileSize).toInt))
     }
 
-
-
+    /// DRAW SPRITES
+    g.setColor(Color.RED)
+    println(game.sprites)
+    for (sprite <- game.sprites) {
+      g.fillOval((sprite.x * tileSize -10).toInt, (sprite.y * tileSize - 10).toInt, 20, 20)
+    }
     /// DRAW PLAYER
     g.setColor(Color.BLUE)
     g.fillOval((player.x * tileSize - 10).toInt, (player.y * tileSize - 10).toInt, 20, 20)

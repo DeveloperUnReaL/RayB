@@ -7,8 +7,8 @@ class Player(var x: Double, var y: Double) {
   //val rayAmount = 1000000 //For testing
 
   var dir = math.Pi/2 //radiaaneja
-  val moveSpeed = 3.5
-  val rotSpeed = 4.0
+  val moveSpeed = 3.0
+  val rotSpeed = 3.5
 
   var moveForward: Boolean = false
   var moveBackward: Boolean = false

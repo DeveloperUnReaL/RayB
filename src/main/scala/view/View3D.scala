@@ -28,10 +28,9 @@ class View3D(game: Game) extends JPanel{
     val bg = buffer.getGraphics.asInstanceOf[Graphics2D]
 
     val player = game.player
-
     // background
-    g.setColor(Color.CYAN)
-    g.fillRect(0, 0, screenX, screenY)
+    bg.setColor(Color.CYAN)
+    bg.fillRect(0, 0, screenX, screenY)
 
     // Lasketaan et mis kohtaa yhen seinän pystysuoran suikaleen alku ja loppu y on
     val wallBounds = Array.ofDim[(Int, Int)](screenX)
@@ -121,6 +120,7 @@ class View3D(game: Game) extends JPanel{
         y += 1
       }
     }
+    val zBuffer = new Array[Double](screenX) // Spritejen renderöintii varten otetaan talteen jokasen rayn etäisyys
 
     // Eli. Toi ray ottaa jokasen osuman listaan muistiin kunnes se löytää jonku läpinäkymättömän seinän.
     // Nää kaikki osumat on järjestyksessä missä lähin osuma on ekana ja kaukasin osuma vikana.
@@ -146,6 +146,9 @@ class View3D(game: Game) extends JPanel{
       }
     }
 
+    val sortedSprites = game.sprites.sortBy(s =>
+      -math.pow(s.x - player.x, 2) - math.pow(s.y - player.y, 2)
+    )
     bg.dispose()
     g.drawImage(buffer, 0, 0, this)
 

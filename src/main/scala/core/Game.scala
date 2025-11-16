@@ -17,7 +17,12 @@ class Game(val map: Map, val player: Player) {
 
   var rays: Array[RayColumn] = Array.empty
 
+  val pillar = SpriteObject(10, 9.5, 1)
+  var sprites = Vector(pillar)
+
   def addView(view: JPanel) = views :+= view
+
+  def addSprite(sprite: SpriteObject) = sprites :+ SpriteObject
 
   def start(): Unit = {
     running = true
@@ -42,6 +47,7 @@ class Game(val map: Map, val player: Player) {
 
   def update(delta: Double): Unit = {
     player.update(delta, map)
+    for (spriteObject <- sprites) {spriteObject.update()}
     castAllRays()
   }
 
