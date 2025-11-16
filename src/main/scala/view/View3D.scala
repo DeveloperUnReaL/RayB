@@ -18,9 +18,16 @@ class View3D(game: Game) extends JPanel{
   private val textureCache = scala.collection.mutable.Map[(Int, Int), Image]()
   private val buffer = new BufferedImage(screenX, screenY, BufferedImage.TYPE_INT_RGB)
 
-  frame.setSize(screenX, screenY)
+  frame.setSize(screenX + 16, screenY + 38)
   frame.add(this)
   frame.setVisible(true)
+
+  def normalizeAngle(a: Double): Double = {
+    var ang = a
+    while (ang <= -math.Pi) ang += 2 * math.Pi
+    while (ang > math.Pi) ang -= 2 * math.Pi
+    ang
+  }
 
   override def paintComponent(g: Graphics): Unit = { ///HUHHUHHUH. En ois uskonu et joudun kirjottaa sekä buffering että two pass rendering algoritmin :DD
     super.paintComponent(g)
@@ -28,9 +35,16 @@ class View3D(game: Game) extends JPanel{
     val bg = buffer.getGraphics.asInstanceOf[Graphics2D]
 
     val player = game.player
-    // background
-    bg.setColor(Color.CYAN)
+    // bg
+    bg.setColor(Color.getHSBColor(0, 0.05, 0.10))
     bg.fillRect(0, 0, screenX, screenY)
+
+    if player.dead then {
+      bg.setColor(new Color(0.1f, 0.1f, 0.1f, 0.8f))
+      bg.fillRect(0, 0, screenX, screenY)
+      g.drawImage(buffer, 0, 0, this)
+      return
+    }
 
     // Lasketaan et mis kohtaa yhen seinän pystysuoran suikaleen alku ja loppu y on
     val wallBounds = Array.ofDim[(Int, Int)](screenX)
@@ -52,7 +66,6 @@ class View3D(game: Game) extends JPanel{
           }
       }
     }
-
 
     val posZ = 0.5 * screenY
     for (i <- game.rays.indices) {
@@ -120,7 +133,8 @@ class View3D(game: Game) extends JPanel{
         y += 1
       }
     }
-    val zBuffer = new Array[Double](screenX) // Spritejen renderöintii varten otetaan talteen jokasen rayn etäisyys
+    //val zBuffer = new Array[Double](screenX) // Spritejen renderöintii varten otetaan talteen jokasen rayn etäisyys
+    val zBuffer = Array.fill[Double](screenX)(Double.PositiveInfinity)
 
     // Eli. Toi ray ottaa jokasen osuman listaan muistiin kunnes se löytää jonku läpinäkymättömän seinän.
     // Nää kaikki osumat on järjestyksessä missä lähin osuma on ekana ja kaukasin osuma vikana.
@@ -137,18 +151,74 @@ class View3D(game: Game) extends JPanel{
         val texId = hit.texId
         val texSlice = textureCache.getOrElseUpdate((texId, texX), TextureManager.getTexture(texId, texX))
 
-        val isOpaque = game.map.isOpaque(texId)
-        if (!isOpaque) {
-          bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
-        } else {
-          bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
+        bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
+
+        for (px <- rayPosX until (rayPosX + game.pixelsPerRay).min(screenX)) {
+          zBuffer(px) = math.min(zBuffer(px), hit.fixedDistance)
         }
       }
     }
 
-    val sortedSprites = game.sprites.sortBy(s =>
-      -math.pow(s.x - player.x, 2) - math.pow(s.y - player.y, 2)
-    )
+    val sortedSprites = game.sprites.sortBy(s => -(s.x - player.x)*(s.x - player.x) - (s.y - player.y)*(s.y - player.y))
+
+    for sprite <- sortedSprites do {
+      val dx = sprite.x - player.x
+      val dy = sprite.y - player.y
+
+      val angleToSprite = math.atan2(dy, dx)
+      val relativeAngle = normalizeAngle(angleToSprite - player.dir)
+
+      if (math.abs(relativeAngle) < game.fov / 1.5) { /// jos sprite on näkyvil
+        val spriteScreenX = ((relativeAngle + game.fov / 2) / game.fov) * screenX // Spriten pixel positio näytöllä (x)
+
+        val dist = math.sqrt(dx*dx + dy*dy)
+        val perpDist = dist * math.cos(relativeAngle) // ettei tuu fisheye
+
+        val spriteSize = (screenY / perpDist).toInt
+
+        val spriteTopY = (screenY / 2) - (spriteSize / 2)
+        val spriteLeftX = spriteScreenX.toInt - (spriteSize / 2) // Eli piirretään sprite spriteLeftX->spriteLeftX+spritesize asti
+
+        for x <- spriteLeftX until spriteLeftX + spriteSize do {
+          if x >= 0 && x < screenX && perpDist < zBuffer(x) then {
+            val texX = ((x - spriteLeftX) * TextureManager.spriteSize / spriteSize)
+
+            for y <- spriteTopY until spriteTopY + spriteSize do {
+              val texY = ((y - spriteTopY) * TextureManager.spriteSize / spriteSize)
+              val color = TextureManager.getSpritePixel(sprite.texId, texX, texY)
+              if (color.getAlpha != 0) {
+                bg.setColor(color)
+                bg.drawLine(x, y, x, y)
+              }
+            }
+          }
+        }
+      }
+    }
+
+    bg.setColor(new Color(0.0f, 0.0f, 0.0f, 0.4f))
+    bg.fillRect(0, 0, screenX, screenY)
+
+    val cx = screenX / 2
+    val cy = screenY / 2
+
+    val gunScale = 8
+
+    val crosshairSize = 10
+    val crosshairThickness = 2
+    val crosshairColor = Color.WHITE
+
+    bg.setColor(Color.RED)
+    bg.fillRect(20, 50, (200 * player.healthPercent).toInt, 35)
+    bg.setColor(Color.WHITE)
+    bg.drawRect(20, 50, 200, 35)
+
+    bg.drawImage(TextureManager.getSprite(player.hudSpriteId), (cx - 32 * gunScale), screenY - 64 * gunScale, 64 * gunScale, 64 * gunScale, this)
+    bg.setColor(crosshairColor)
+
+    bg.fillRect(cx - crosshairSize, cy - crosshairThickness + 5, crosshairSize * 2, crosshairThickness)
+    bg.fillRect(cx - crosshairThickness + 1, cy - crosshairSize + 4, crosshairThickness, crosshairSize * 2)
+
     bg.dispose()
     g.drawImage(buffer, 0, 0, this)
 

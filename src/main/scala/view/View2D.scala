@@ -54,7 +54,6 @@ class View2D(game: Game) extends JPanel{
 
     /// DRAW SPRITES
     g.setColor(Color.RED)
-    println(game.sprites)
     for (sprite <- game.sprites) {
       g.fillOval((sprite.x * tileSize -10).toInt, (sprite.y * tileSize - 10).toInt, 20, 20)
     }

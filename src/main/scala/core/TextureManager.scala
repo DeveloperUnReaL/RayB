@@ -6,7 +6,9 @@ import java.awt.image.*
 import scala.collection.immutable.Map as ScalaMap
 
 object TextureManager {
-  val tileSize = 16 // your texture size in pixels
+
+  val tileSize = 32
+  val spriteSize = 64
 
   private def loadTexture(path: String): BufferedImage = {
     println("loaded")
@@ -16,33 +18,44 @@ object TextureManager {
   }
 
   val textures: ScalaMap[Int, BufferedImage] = ScalaMap(
-    1 -> loadTexture("/assets/textures/tiles/brick1.png"),
-    2 -> loadTexture("/assets/textures/tiles/rocks5.png"),
+    1 -> loadTexture("/assets/textures/tiles/tile811.png"),
+    2 -> loadTexture("/assets/textures/tiles/tile1073.png"),
     3 -> loadTexture("/assets/textures/tiles/water1.png"),
-    4 -> loadTexture("/assets/textures/tiles/tiles2.png"),
-    5 -> loadTexture("/assets/textures/tiles/grass1.png"),
+    4 -> loadTexture("/assets/textures/tiles/tile1104.png"),
+    5 -> loadTexture("/assets/textures/tiles/tile1029.png"),
     6 -> loadTexture("/assets/textures/tiles/doorclosed.png"),
     7 -> loadTexture("/assets/textures/tiles/dooropen.png"),
   )
 
   val spriteTextures: ScalaMap[Int, BufferedImage] = ScalaMap(
+    0 -> loadTexture("/assets/textures/sprites/gun.png"),
     1 -> loadTexture("/assets/textures/sprites/pillar.png"),
+    2 -> loadTexture("/assets/textures/sprites/plant.png"),
+    3 -> loadTexture("/assets/textures/sprites/table.png"),
+    10 -> loadTexture("/assets/textures/sprites/gun_shoot.png"),
   )
 
-  val spriteHeight = 16 //TODO: FIX LATETR
-  val spriteWidth = 16
+  def getTexture(id: Int): BufferedImage =
+    textures.getOrElse(id, textures(1))
 
-  def getTexture(id: Int) = textures.getOrElse(id, textures(1)) //TEXTURE
+  def getTexture(id: Int, column: Int): BufferedImage = {
+    val tex = textures(id)
+    val col = math.max(0, math.min(column, tex.getWidth - 1))
+    tex.getSubimage(col, 0, 1, tileSize)
+  }
 
-  def getTexture(id: Int, column: Int): BufferedImage = //COLUMN
-    //println(column)
-    textures(id).getSubimage(column, 0, 1, tileSize)
-    //textures.getOrElse(id, textures(1)) // fallback texture
+  def getTexturePixel(id: Int, x: Int, y: Int): Color = {
+    val tex = textures(id)
+    val xx = math.max(0, math.min(x, tex.getWidth - 1))
+    val yy = math.max(0, math.min(y, tex.getHeight - 1))
+    new Color(tex.getRGB(xx, yy), true)
+  }
 
-  def getTexturePixel(id: Int, x: Int, y: Int): Color =
-    new Color(textures(id).getRGB(x,y))
+  def getSprite(id: Int): BufferedImage = spriteTextures.getOrElse(id, spriteTextures.head._2)
 
-  def getSprite(id: Int) = spriteTextures.getOrElse(id, textures(1))
-
-  def getSprite(id: Int, column: Int): BufferedImage = spriteTextures(id).getSubimage(column, 0, 1, spriteWidth)
+  def getSpritePixel(id: Int, x: Int, y: Int): Color = {
+    val xx = math.max(0, math.min(x, getSprite(id).getWidth - 1))
+    val yy = math.max(0, math.min(y, getSprite(id).getHeight - 1))
+    new Color(getSprite(id).getRGB(xx, yy), true)
+  }
 }

@@ -9,7 +9,7 @@ class Game(val map: Map, val player: Player) {
   private var running: Boolean = false
 
 
-  val pixelsPerRay = 4
+  val pixelsPerRay = 1
   val screenX = 800
   val rayAmount = screenX / pixelsPerRay
   val fov = math.toRadians(60.0)
@@ -18,7 +18,9 @@ class Game(val map: Map, val player: Player) {
   var rays: Array[RayColumn] = Array.empty
 
   val pillar = SpriteObject(10, 9.5, 1)
-  var sprites = Vector(pillar)
+  val pillar2 = SpriteObject(11, 9.5, 2)
+  val pillar3 = SpriteObject(12, 9.5, 3)
+  var sprites = Vector(pillar, pillar2, pillar3)
 
   def addView(view: JPanel) = views :+= view
 
@@ -27,7 +29,7 @@ class Game(val map: Map, val player: Player) {
   def start(): Unit = {
     running = true
     var lastTime = System.nanoTime()
-    val fps = 30
+    val fps = 60
     val frameTime = 1e9 / fps
 
     new Thread(() =>
@@ -38,7 +40,6 @@ class Game(val map: Map, val player: Player) {
 
         render()
         update(delta)
-        //println(fps)
 
         val sleep = ((frameTime - (System.nanoTime() - now)) / 1e6).toLong
         if sleep > 0 then Thread.sleep(sleep)
