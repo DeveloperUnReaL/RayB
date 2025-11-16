@@ -35,6 +35,7 @@ class View3D(game: Game) extends JPanel{
     val bg = buffer.getGraphics.asInstanceOf[Graphics2D]
 
     val player = game.player
+
     // bg
     bg.setColor(Color.getHSBColor(0, 0.05, 0.10))
     bg.fillRect(0, 0, screenX, screenY)
@@ -42,6 +43,11 @@ class View3D(game: Game) extends JPanel{
     if player.dead then {
       bg.setColor(new Color(0.1f, 0.1f, 0.1f, 0.8f))
       bg.fillRect(0, 0, screenX, screenY)
+      bg.setColor(Color.RED)
+      bg.setFont(new Font("Arial", Font.BOLD, 48))
+      bg.drawString("YOU DIED", screenX/2 - 120, screenY/2)
+      bg.setFont(new Font("Arial", Font.PLAIN, 28))
+      bg.drawString(s"Score: ${player.score}", screenX/2 - 120, (screenY/1.5).toInt)
       g.drawImage(buffer, 0, 0, this)
       return
     }

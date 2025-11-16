@@ -17,10 +17,10 @@ class Game(val map: Map, val player: Player) {
 
   var rays: Array[RayColumn] = Array.empty
 
-  val pillar = SpriteObject(10, 9.5, 1)
-  val pillar2 = SpriteObject(11, 9.5, 2)
-  val pillar3 = SpriteObject(12, 9.5, 3)
-  var sprites = Vector(pillar, pillar2, pillar3)
+  val pillar = SpriteObject(10, 9.5, 1, 0.5)
+  val plant = SpriteObject(11, 9.5, 2)
+  val table = SpriteObject(12, 9.5, 3)
+  var sprites = Vector(pillar, plant, table)
 
   def addView(view: JPanel) = views :+= view
 
