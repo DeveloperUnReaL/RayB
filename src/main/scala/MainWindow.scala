@@ -4,7 +4,7 @@ import view.*
 
 @main def runRayBlaster(): Unit = {
   val map = new Map()
-  val player = new Player(map.spawnPos._1, map.spawnPos._2)
+  val player = new Player(map.spawnPos._2, map.spawnPos._1)
   val game = new Game(map, player)
 
   val view2D = new View2D(game)

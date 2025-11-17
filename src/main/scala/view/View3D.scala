@@ -215,9 +215,12 @@ class View3D(game: Game) extends JPanel{
     val crosshairColor = Color.WHITE
 
     bg.setColor(Color.RED)
-    bg.fillRect(20, 50, (200 * player.healthPercent).toInt, 35)
+    bg.fillRect(20, 50, (200 * player.healthPercent).toInt, 25)
     bg.setColor(Color.WHITE)
-    bg.drawRect(20, 50, 200, 35)
+    bg.drawRect(20, 50, 200, 25)
+
+    bg.setFont(new Font("Arial", Font.PLAIN, 25))
+    bg.drawString(s"Score: ${player.score}", 100, (screenY/1.10).toInt)
 
     bg.drawImage(TextureManager.getSprite(player.hudSpriteId), (cx - 32 * gunScale), screenY - 64 * gunScale, 64 * gunScale, 64 * gunScale, this)
     bg.setColor(crosshairColor)

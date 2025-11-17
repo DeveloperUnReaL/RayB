@@ -5,7 +5,7 @@ import RayCaster.castRay
 class Player(var x: Double, var y: Double) {
   //val rayAmount = 1000000 //For testing
 
-  var dir = math.Pi/2 //radiaaneja
+  var dir = 0.3 //radiaaneja
   val moveSpeed = 2.5
   val rotSpeed = 2.0
 

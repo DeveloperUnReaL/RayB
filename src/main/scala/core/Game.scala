@@ -9,7 +9,7 @@ class Game(val map: Map, val player: Player) {
   private var running: Boolean = false
 
 
-  val pixelsPerRay = 1
+  val pixelsPerRay = 2
   val screenX = 800
   val rayAmount = screenX / pixelsPerRay
   val fov = math.toRadians(60.0)
