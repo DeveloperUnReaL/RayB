@@ -25,6 +25,7 @@ object TextureManager {
     5 -> loadTexture("/assets/textures/tiles/tile1029.png"),
     6 -> loadTexture("/assets/textures/tiles/doorclosed.png"),
     7 -> loadTexture("/assets/textures/tiles/dooropen.png"),
+    8 -> loadTexture("/assets/textures/tiles/npc.png"),
   )
 
   val spriteTextures: ScalaMap[Int, BufferedImage] = ScalaMap(
@@ -32,6 +33,9 @@ object TextureManager {
     1 -> loadTexture("/assets/textures/sprites/pillar.png"),
     2 -> loadTexture("/assets/textures/sprites/plant.png"),
     3 -> loadTexture("/assets/textures/sprites/table.png"),
+    4 -> loadTexture("/assets/textures/sprites/ghost.png"),
+    5 -> loadTexture("/assets/textures/sprites/barrel.png"),
+    8 -> loadTexture("/assets/textures/sprites/npc.png"),
     10 -> loadTexture("/assets/textures/sprites/gun_shoot.png"),
   )
 

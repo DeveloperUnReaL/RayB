@@ -29,6 +29,37 @@ class View3D(game: Game) extends JPanel{
     ang
   }
 
+  private def drawHUD(g: Graphics2D, player: Player): Unit = {
+    val cx = screenX / 2
+    val cy = screenY / 2
+
+    val gunScale = 8
+
+    val crosshairSize = 10
+    val crosshairThickness = 2
+    val crosshairColor = Color.WHITE
+
+    g.setColor(Color.RED)
+    g.fillRect(20, 50, (200 * player.healthPercent).toInt, 25)
+    g.setColor(Color.WHITE)
+    g.drawRect(20, 50, 200, 25)
+
+    g.setFont(new Font("Arial", Font.PLAIN, 25))
+    g.drawString(s"Score: ${player.score}", 100, (screenY/1.10).toInt)
+
+    g.drawImage(TextureManager.getSprite(player.hudSpriteId), (cx - 32 * gunScale), screenY - 64 * gunScale, 64 * gunScale, 64 * gunScale, this)
+
+    g.setColor(crosshairColor)
+    g.fillRect(cx - crosshairSize, cy - crosshairThickness + 5, crosshairSize * 2, crosshairThickness)
+    g.fillRect(cx - crosshairThickness + 1, cy - crosshairSize + 4, crosshairThickness, crosshairSize * 2)
+
+    g.setColor(Color.WHITE)
+    g.setFont(new Font("Arial", Font.PLAIN, 18))
+    g.drawString(player.hintText, cx - 25, cy + 30)
+
+    g.drawString(player.storyText, cx - 200, screenY - 180)
+  }
+
   override def paintComponent(g: Graphics): Unit = { ///HUHHUHHUH. En ois uskonu et joudun kirjottaa sekä buffering että two pass rendering algoritmin :DD
     super.paintComponent(g)
 
@@ -205,31 +236,10 @@ class View3D(game: Game) extends JPanel{
     bg.setColor(new Color(0.0f, 0.0f, 0.0f, 0.4f))
     bg.fillRect(0, 0, screenX, screenY)
 
-    val cx = screenX / 2
-    val cy = screenY / 2
-
-    val gunScale = 8
-
-    val crosshairSize = 10
-    val crosshairThickness = 2
-    val crosshairColor = Color.WHITE
-
-    bg.setColor(Color.RED)
-    bg.fillRect(20, 50, (200 * player.healthPercent).toInt, 25)
-    bg.setColor(Color.WHITE)
-    bg.drawRect(20, 50, 200, 25)
-
-    bg.setFont(new Font("Arial", Font.PLAIN, 25))
-    bg.drawString(s"Score: ${player.score}", 100, (screenY/1.10).toInt)
-
-    bg.drawImage(TextureManager.getSprite(player.hudSpriteId), (cx - 32 * gunScale), screenY - 64 * gunScale, 64 * gunScale, 64 * gunScale, this)
-    bg.setColor(crosshairColor)
-
-    bg.fillRect(cx - crosshairSize, cy - crosshairThickness + 5, crosshairSize * 2, crosshairThickness)
-    bg.fillRect(cx - crosshairThickness + 1, cy - crosshairSize + 4, crosshairThickness, crosshairSize * 2)
-
     bg.dispose()
     g.drawImage(buffer, 0, 0, this)
+
+    drawHUD(g.asInstanceOf[Graphics2D], player)
 
   }
 }
