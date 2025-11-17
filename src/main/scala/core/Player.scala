@@ -1,9 +1,9 @@
 package core
 import scala.math
 import RayCaster.castRay
+import core.entities.*
 
 class Player(var x: Double, var y: Double) {
-  //val rayAmount = 1000000 //For testing
 
   var dir = 0.3 //radiaaneja
   val moveSpeed = 2.5
@@ -35,6 +35,11 @@ class Player(var x: Double, var y: Double) {
     "Did my little baby get scawed?",
     "GO BACK AND TERMINATE THOSE GHOSTS"
   )
+  var finalText: Array[String] = Array(
+    "Excellent work, the evil has been defeated.",
+    "You'll be rewarded with 200C points in the Aalto O1 course.",
+    "Good job, soldier!",
+  )
   var activeDialog: Array[String] = startText
 
   var hudSpriteId = 0
@@ -58,15 +63,15 @@ class Player(var x: Double, var y: Double) {
   var healthPercent = health / 100.0
   var score = 0
   var ammo = 10
+  val damage = 14
 
-  def update(delta: Double, map: Map): Unit = {
+  def update(delta: Double, map: Map, game: Game): Unit = {
     val dx = math.cos(dir)
     val dy = math.sin(dir)
 
     if health <= 0 then {
       dead = true
     }
-
 
     /// CHECK FOR INTERACTION
     val firstHitOpt = castRay(this, dir, map, 1, 1000).firstHit
@@ -76,11 +81,11 @@ class Player(var x: Double, var y: Double) {
     interactionRay match {
       case Some(hit) if hit.texId == 6 || hit.texId == 7 =>
         interactable = true
-        hintText = "open/close"
+        hintText = "open/close(E)"
 
       case Some(hit) if hit.texId == 8 =>
         interactable = true
-        hintText = "chat"
+        hintText = "chat(E)"
 
       case _ =>
         interactable = false
@@ -111,7 +116,7 @@ class Player(var x: Double, var y: Double) {
                 isLineDone = false
               } else if (talking && isLineDone) {
                   dialogIndex += 1 // seuraava rivi
-                  if (dialogIndex >= activeDialog.length) { // dialog loppu
+                  if (dialogIndex >= activeDialog.length) { // dialog loppu /// holy nest :DDD
                     talking = false
                     storyText = ""
                     textProgress = 0.0
@@ -137,12 +142,19 @@ class Player(var x: Double, var y: Double) {
     }
 
     if (shoot && !this.isShooting && !interact) { // SHOOT INPUT
-      castRay(this, dir, map, 1, 1000).firstHit match {
+      val dx = math.cos(dir)
+      val dy = -math.sin(dir)
+      castRay(this, dir, map, 1, 1000).firstOpaqueHit(map) match {
         case Some(ray) =>
-          println("shoot - " + ray.realDistance) //TODO:
           hudSpriteId = 10 // Shooting sprite
-        // Start cooldown
-        case None => ()
+          enemyHit(ray)
+        case None =>
+          val enemyHits = game.sprites.flatMap { enemy => rayIntersectsEnemy(dx,dy,enemy).map(dist => (enemy, dist))}
+          enemyHits.sortBy(_._2).headOption match {
+            case Some((enemy, dist)) =>
+              enemy.takeDamage(damage)
+            case None => ()
+          }
       }
       isShooting = true
       shootCooldown = shootCooldownTime
@@ -157,6 +169,41 @@ class Player(var x: Double, var y: Double) {
         isShooting = false
       }
     }
+
+    def enemyHit(ray: RayHit): Unit = {
+      val dx = math.cos(dir)
+      val dy = math.sin(dir)
+
+      val wallDist = ray.realDistance
+
+      val enemyHits = game.sprites.flatMap { enemy =>
+        rayIntersectsEnemy(dx,dy,enemy).map(dist => (enemy, dist))
+      }
+      val nearest = enemyHits.sortBy(_._2).headOption
+
+      nearest match {
+        case Some((enemy, dist)) if dist < wallDist =>
+          enemy.takeDamage(damage)
+        case _ => ()
+      }
+    }
+
+    def rayIntersectsEnemy(dx: Double, dy: Double, enemy: Sprite): Option[Double] = { // jeesaileva
+      val diffX = enemy.x - this.x
+      val diffY = enemy.y - this.y
+
+      val dist = diffX * dx + diffY * dy
+      if (dist < 0) return None // Jos se on siis takana
+
+      val cx = this.x + dx * dist
+      val cy = this.y + dy * dist
+
+      val distSq = (cx - enemy.x)*(cx - enemy.x) + (cy - enemy.y)*(cy - enemy.y)
+
+      if (distSq <= enemy.hitRadius * enemy.hitRadius) Some(dist)
+      else None
+    }
+
     if (interactCooldown > 0) {
       interactCooldown -= delta
       hintText = ""

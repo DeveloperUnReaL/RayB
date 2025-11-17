@@ -1,9 +1,11 @@
 package core
+import core.entities.*
 import javax.swing.*
 
 class Game(val map: Map, val player: Player) {
   val keyHandler = new KeyHandler(player)
   var frameCount: Int = 0
+  var gameState: Int = 0
 
   private var views: Vector[javax.swing.JPanel] = Vector()
   private var running: Boolean = false
@@ -17,17 +19,27 @@ class Game(val map: Map, val player: Player) {
 
   var rays: Array[RayColumn] = Array.empty
 
-  val pillar = SpriteObject(10, 9.5, 1, 0.5)
-  val plant = SpriteObject(3.8, 3.2, 2)
-  val table = SpriteObject(3.5, 4, 3)
-  val barrel1 = SpriteObject(1.3, 4.8, 5)
-  val barrel2 = SpriteObject(1.3, 4.5, 5)
-  val ghost = SpriteObject(13, 9.5, 4, 0.5)
-  var sprites = Vector(pillar, plant, table, ghost, barrel1, barrel2)
+  var sprites: Vector[Sprite] = Vector(
+    SpriteObject(10, 9.5, 1, 0.1),
+    SpriteObject(3.8, 3.2, 2),
+    SpriteObject(3.5, 4, 3),
+    SpriteObject(1.3, 4.8, 5),
+    SpriteObject(1.3, 4.5, 5),
+    new Enemy(10, 10)
+  )
 
   def addView(view: JPanel) = views :+= view
 
-  def addSprite(sprite: SpriteObject) = sprites :+ SpriteObject
+  def spawnEnemy(x: Double, y: Double): Unit = sprites = sprites :+ new Enemy(x, y)
+  def spawnSprite(x: Double, y: Double, texId: Int): Unit = sprites :+= SpriteObject(x, y, texId)
+  def removeSprite(sprite: Sprite): Unit = {
+  sprite match {
+    case e: Enemy =>
+      player.score += e.score
+    case _ =>
+  }
+  sprites = sprites.filterNot(_ eq sprite)
+}
 
   def start(): Unit = {
     running = true
@@ -50,8 +62,8 @@ class Game(val map: Map, val player: Player) {
   }
 
   def update(delta: Double): Unit = {
-    player.update(delta, map)
-    for (spriteObject <- sprites) {spriteObject.update()}
+    player.update(delta, map, this)
+    for (spriteObject <- sprites) {spriteObject.update(delta)}
     castAllRays()
   }
 
@@ -66,4 +78,13 @@ class Game(val map: Map, val player: Player) {
     frameCount += 1
     //println("uus frame!: " + frameCount)
     for view <- views do view.repaint()
+
+  def checkGameState(): Unit = {
+    if (player.score <= 20) {
+      spawnEnemies()
+    }
+  }
+  
+  def spawnEnemies(): Unit = {
+  }
 }

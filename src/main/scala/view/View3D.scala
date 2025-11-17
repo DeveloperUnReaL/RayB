@@ -5,6 +5,7 @@ import javax.swing.*
 import java.awt.*
 import java.awt.image.*
 import core.*
+import core.entities.Enemy
 
 class View3D(game: Game) extends JPanel{
   private val frame = new JFrame("RayBlaster3D")
@@ -43,9 +44,6 @@ class View3D(game: Game) extends JPanel{
     g.fillRect(20, 50, (200 * player.healthPercent).toInt, 25)
     g.setColor(Color.WHITE)
     g.drawRect(20, 50, 200, 25)
-
-    g.setFont(new Font("Arial", Font.PLAIN, 25))
-    g.drawString(s"Score: ${player.score}", 100, (screenY/1.10).toInt)
 
     g.drawImage(TextureManager.getSprite(player.hudSpriteId), (cx - 32 * gunScale), screenY - 64 * gunScale, 64 * gunScale, 64 * gunScale, this)
 
@@ -198,7 +196,7 @@ class View3D(game: Game) extends JPanel{
 
     val sortedSprites = game.sprites.sortBy(s => -(s.x - player.x)*(s.x - player.x) - (s.y - player.y)*(s.y - player.y))
 
-    for sprite <- sortedSprites do {
+    for sprite <- sortedSprites do { // Piirretään siis järjestyksessä kauimmat -> lähimmät
       val dx = sprite.x - player.x
       val dy = sprite.y - player.y
 
@@ -216,14 +214,24 @@ class View3D(game: Game) extends JPanel{
         val spriteTopY = (screenY / 2) - (spriteSize / 2)
         val spriteLeftX = spriteScreenX.toInt - (spriteSize / 2) // Eli piirretään sprite spriteLeftX->spriteLeftX+spritesize asti
 
-        for x <- spriteLeftX until spriteLeftX + spriteSize do {
+        for x <- spriteLeftX until spriteLeftX + spriteSize do { // TODO: OPTIMIZE!!!!
           if x >= 0 && x < screenX && perpDist < zBuffer(x) then {
             val texX = ((x - spriteLeftX) * TextureManager.spriteSize / spriteSize)
 
             for y <- spriteTopY until spriteTopY + spriteSize do {
               val texY = ((y - spriteTopY) * TextureManager.spriteSize / spriteSize)
-              val color = TextureManager.getSpritePixel(sprite.texId, texX, texY)
-              if (color.getAlpha != 0) {
+              val baseColor = TextureManager.getSpritePixel(sprite.texId, texX, texY)
+
+              if baseColor.getAlpha != 0 then {
+                val color =
+                  sprite match {
+                    case e: Enemy if e.hitFlash =>
+                      val r = math.min(255, baseColor.getRed   * 0.7 + 255 * 0.3).toInt
+                      val g = math.min(255, baseColor.getGreen * 0.7).toInt
+                      val b = math.min(255, baseColor.getBlue  * 0.7).toInt
+                      new java.awt.Color(r, g, b, baseColor.getAlpha)
+                    case _ => baseColor
+                  }
                 bg.setColor(color)
                 bg.drawLine(x, y, x, y)
               }
