@@ -60,17 +60,68 @@ class Player(var x: Double, var y: Double) {
 
   var dead: Boolean = false
   var health = 100
-  var healthPercent = health / 100.0
+  var healthPercent = 1.0
   var score = 0
   var ammo = 10
   val damage = 14
 
+  val hitRadius = 1.2
+
+  val hurtCooldownDuration = 1
+  var hurtCooldownTimer: Double = 0.0
+  var hurtCooldown: Boolean = false
+  val hitFlashDuration: Double = 0.2
+  var hitFlashTimer: Double = 0.0
+  var hitFlash: Boolean = false
+
+  var dx: Double = math.cos(dir)
+  var dy: Double = math.sin(dir)
+  var planeX: Double = 0.0
+  var planeY: Double =  0.0
+
+  def checkHurtBox(game: Game): Unit = {
+    for (sprite <- game.sprites) {
+      sprite match {
+        case s: Enemy =>
+          val dx = s.x - x
+          val dy = s.y - y
+          val distance = math.sqrt(dx*dx + dy*dy)
+
+          if (distance <= s.hitRadius) {takeDamage(s.damage)}
+        case s: BossEnemy =>
+          val dx = s.x - x
+          val dy = s.y - y
+          val distance = math.sqrt(dx*dx + dy*dy)
+
+          if (distance <= s.hitRadius) {takeDamage(10)}
+        case _ => ()
+      }
+    }
+  }
+
+  def takeDamage(amount: Int): Unit = {
+    if (!hurtCooldown) {
+      health -= amount
+      hurtCooldown = true
+      hurtCooldownTimer = hurtCooldownDuration
+      hitFlash = true
+      hitFlashTimer = hitFlashDuration
+    }
+  }
+
   def update(delta: Double, map: Map, game: Game): Unit = {
-    val dx = math.cos(dir)
-    val dy = math.sin(dir)
+    dx = math.cos(dir)
+    dy = math.sin(dir)
+    planeX = -dy * math.tan(game.fov/2)
+    planeY = dx * math.tan(game.fov/2)
+
+    checkHurtBox(game)
+
+    healthPercent = health / 100.0
 
     if health <= 0 then {
       dead = true
+      return
     }
 
     /// CHECK FOR INTERACTION
@@ -80,8 +131,9 @@ class Player(var x: Double, var y: Double) {
 
     interactionRay match {
       case Some(hit) if hit.texId == 6 || hit.texId == 7 =>
-        interactable = true
-        hintText = "open/close(E)"
+        if !(activeDialog sameElements startText) then // ei päästetä pelaajaa ulos ilman loree :DD
+          interactable = true
+          hintText = "open/close(E)"
 
       case Some(hit) if hit.texId == 8 =>
         interactable = true
@@ -169,6 +221,20 @@ class Player(var x: Double, var y: Double) {
         isShooting = false
       }
     }
+    if (hurtCooldownTimer > 0) {
+      hurtCooldownTimer -= delta
+      if (hurtCooldownTimer < 0) {
+        hurtCooldownTimer = 0
+        hurtCooldown = false
+      }
+    }
+    if (hitFlashTimer > 0) {
+      hitFlashTimer -= delta
+      if (hitFlashTimer < 0) {
+        hitFlashTimer = 0
+        hitFlash = false
+      }
+    }
 
     def enemyHit(ray: RayHit): Unit = {
       val dx = math.cos(dir)
@@ -231,7 +297,6 @@ class Player(var x: Double, var y: Double) {
           isLineDone = true
         }
       }
-
     }
 
     updateDialog(delta, lookingAtNPC)

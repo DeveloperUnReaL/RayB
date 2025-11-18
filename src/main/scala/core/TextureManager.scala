@@ -18,14 +18,19 @@ object TextureManager {
   }
 
   val textures: ScalaMap[Int, BufferedImage] = ScalaMap(
-    1 -> loadTexture("/assets/textures/tiles/tile811.png"),
-    2 -> loadTexture("/assets/textures/tiles/tile1073.png"),
+    1 -> loadTexture("/assets/textures/tiles/tile811.png"), // normal wall
+    2 -> loadTexture("/assets/textures/tiles/tile1073.png"), // non spawnable floor tile
     3 -> loadTexture("/assets/textures/tiles/water1.png"),
-    4 -> loadTexture("/assets/textures/tiles/tile1104.png"),
-    5 -> loadTexture("/assets/textures/tiles/tile1029.png"),
+    4 -> loadTexture("/assets/textures/tiles/tile1104.png"), // roof tile
+    5 -> loadTexture("/assets/textures/tiles/tile1029.png"), // spawnable grass
     6 -> loadTexture("/assets/textures/tiles/doorclosed.png"),
     7 -> loadTexture("/assets/textures/tiles/dooropen.png"),
     8 -> loadTexture("/assets/textures/tiles/npc.png"),
+    // 9 is reserved for player spawn
+    10 -> loadTexture("/assets/textures/tiles/tile334.png"), // fence
+    11 -> loadTexture("/assets/textures/tiles/tile1107.png"), // spawnable floor tile
+    12 -> loadTexture("/assets/textures/tiles/tile1029.png"),
+    100 -> loadTexture("/assets/textures/skybox/skybox.png"),
   )
 
   val spriteTextures: ScalaMap[Int, BufferedImage] = ScalaMap(
@@ -35,7 +40,7 @@ object TextureManager {
     3 -> loadTexture("/assets/textures/sprites/table.png"),
     4 -> loadTexture("/assets/textures/sprites/ghost.png"),
     5 -> loadTexture("/assets/textures/sprites/barrel.png"),
-    8 -> loadTexture("/assets/textures/sprites/npc.png"),
+    8 -> loadTexture("/assets/textures/sprites/spawner.png"),
     10 -> loadTexture("/assets/textures/sprites/gun_shoot.png"),
   )
 

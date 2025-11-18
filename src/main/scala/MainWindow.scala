@@ -13,5 +13,7 @@ import view.*
   game.addView(view2D)
   game.addView(view3D)
 
+  game.initSpawners()
+
   game.start()
 }

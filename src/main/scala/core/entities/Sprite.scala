@@ -1,5 +1,7 @@
 package core.entities
 
+import core.Player
+
 trait Sprite {
   var x: Double
   var y: Double

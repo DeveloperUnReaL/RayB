@@ -31,7 +31,7 @@ class View2D(game: Game) extends JPanel{
     /// DRAW MAP
     for y <- map.grid(1).indices; x <- map.grid(1)(y).indices do {
       if map.grid(1)(y)(x) == 0 then
-        g.setColor(Color.WHITE)
+        if map.isSpawnable(x,y) then g.setColor(Color.CYAN) else g.setColor(Color.white) // mihin spawneri voi spawnata
       if map.grid(1)(y)(x) == 1 then
         g.setColor(Color.BLACK)
       if map.grid(1)(y)(x) == 6 then // suljettu ovi

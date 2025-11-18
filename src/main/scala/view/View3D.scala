@@ -5,7 +5,7 @@ import javax.swing.*
 import java.awt.*
 import java.awt.image.*
 import core.*
-import core.entities.Enemy
+import core.entities.*
 
 class View3D(game: Game) extends JPanel{
   private val frame = new JFrame("RayBlaster3D")
@@ -15,6 +15,7 @@ class View3D(game: Game) extends JPanel{
   val screenX = game.screenX
   val screenY = 600
   val texSize = TextureManager.tileSize
+  val skyTexture = TextureManager.getTexture(100)
 
   private val textureCache = scala.collection.mutable.Map[(Int, Int), Image]()
   private val buffer = new BufferedImage(screenX, screenY, BufferedImage.TYPE_INT_RGB)
@@ -23,7 +24,26 @@ class View3D(game: Game) extends JPanel{
   frame.add(this)
   frame.setVisible(true)
 
-  def normalizeAngle(a: Double): Double = {
+
+  def drawSky(g: Graphics2D): Unit = {
+    val player = game.player
+    val tex = skyTexture
+
+    var angle = player.dir
+    if (angle < 0) angle += 2 * math.Pi
+    val offset = ((angle / (2 * math.Pi)) * 4096).toInt % 4096
+
+    val width1 = 4096 - offset
+    if (screenX <= width1) { // eli loopataan sitä texturea.
+      g.drawImage(tex, 0, 0, screenX, screenY, offset, 0, offset + screenX, 256, this)
+    } else {
+      g.drawImage(tex, 0, 0, width1, screenY, offset, 0, 4096, 256, this)
+      val width2 = screenX - width1
+      g.drawImage( tex, width1, 0, width1 + width2, screenY, 0, 0, width2, 256, this)
+    }
+  }
+
+  def normalizeAngle(a: Double): Double = { /// Nää helperit ois voinu laittaa kyl tonne muualle koska näitä tarvitaan muuallaki
     var ang = a
     while (ang <= -math.Pi) ang += 2 * math.Pi
     while (ang > math.Pi) ang -= 2 * math.Pi
@@ -34,16 +54,27 @@ class View3D(game: Game) extends JPanel{
     val cx = screenX / 2
     val cy = screenY / 2
 
+    if player.dead then {
+      g.setColor(new Color(0.1f, 0.1f, 0.1f, 0.8f))
+      g.fillRect(0, 0, screenX, screenY)
+      g.setColor(Color.RED)
+      g.setFont(new Font("Arial", Font.BOLD, 48))
+      g.drawString("YOU DIED", cx - 110, cy + 50)
+      g.setFont(new Font("Arial", Font.PLAIN, 28))
+      g.drawString(s"Score: ${player.score}", cx - 50, (screenY/1.5).toInt)
+      return
+    }
+
     val gunScale = 8
 
     val crosshairSize = 10
     val crosshairThickness = 2
     val crosshairColor = Color.WHITE
 
+    g.setColor(Color.BLACK)
+    g.fillRect(20-2, screenY - 52, 200+4, 20+4)
     g.setColor(Color.RED)
-    g.fillRect(20, 50, (200 * player.healthPercent).toInt, 25)
-    g.setColor(Color.WHITE)
-    g.drawRect(20, 50, 200, 25)
+    g.fillRect(20, screenY - 50, (200 * player.healthPercent).toInt, 20)
 
     g.drawImage(TextureManager.getSprite(player.hudSpriteId), (cx - 32 * gunScale), screenY - 64 * gunScale, 64 * gunScale, 64 * gunScale, this)
 
@@ -56,6 +87,11 @@ class View3D(game: Game) extends JPanel{
     g.drawString(player.hintText, cx - 25, cy + 30)
 
     g.drawString(player.storyText, cx - 200, screenY - 180)
+
+    if (player.hitFlash) {
+      g.setColor(new Color(1f, 0.1f, 0.1f, 0.3f))
+      g.fillRect(0, 0, screenX, screenY)
+    }
   }
 
   override def paintComponent(g: Graphics): Unit = { ///HUHHUHHUH. En ois uskonu et joudun kirjottaa sekä buffering että two pass rendering algoritmin :DD
@@ -66,20 +102,9 @@ class View3D(game: Game) extends JPanel{
     val player = game.player
 
     // bg
-    bg.setColor(Color.getHSBColor(0, 0.05, 0.10))
-    bg.fillRect(0, 0, screenX, screenY)
-
-    if player.dead then {
-      bg.setColor(new Color(0.1f, 0.1f, 0.1f, 0.8f))
-      bg.fillRect(0, 0, screenX, screenY)
-      bg.setColor(Color.RED)
-      bg.setFont(new Font("Arial", Font.BOLD, 48))
-      bg.drawString("YOU DIED", screenX/2 - 120, screenY/2)
-      bg.setFont(new Font("Arial", Font.PLAIN, 28))
-      bg.drawString(s"Score: ${player.score}", screenX/2 - 120, (screenY/1.5).toInt)
-      g.drawImage(buffer, 0, 0, this)
-      return
-    }
+    //bg.setColor(Color.getHSBColor(0, 0.05, 0.10))
+    //bg.fillRect(0, 0, screenX, screenY)
+    drawSky(bg)
 
     // Lasketaan et mis kohtaa yhen seinän pystysuoran suikaleen alku ja loppu y on
     val wallBounds = Array.ofDim[(Int, Int)](screenX)
@@ -87,7 +112,7 @@ class View3D(game: Game) extends JPanel{
       val rayColumn = game.rays(i)
       rayColumn.firstOpaqueHit(game.map) match {
         case Some(firstHit) =>
-          val rayHeight = ((screenY / firstHit.fixedDistance)).toInt
+          val rayHeight = ((screenY / firstHit.realDistance)).toInt
           val rayPosX = i * game.pixelsPerRay
           val rayTopY = (screenY / 2) - (rayHeight / 2)
           val rayBottomY = rayTopY + rayHeight
@@ -108,9 +133,9 @@ class View3D(game: Game) extends JPanel{
       val rayPosX = i * game.pixelsPerRay
       val (wallTop, wallBottom) = wallBounds(rayPosX)
 
-      val rayAngle = player.dir - game.fov / 2.0 + i * game.rayAngleStep
-      val rayDirX = math.cos(rayAngle)
-      val rayDirY = math.sin(rayAngle)
+      val cameraX = (2.0 * i / game.rays.length) - 1.0 /// vihdoin saadaa fisheye korjattuu kunnolla
+      val rayDirX = player.dx + player.planeX * cameraX
+      val rayDirY = player.dy + player.planeY * cameraX
 
       var y = wallBottom
       while (y < screenY) {// piirretään lattia
@@ -188,8 +213,11 @@ class View3D(game: Game) extends JPanel{
 
         bg.drawImage(texSlice, rayPosX, rayTopY, game.pixelsPerRay, rayHeight, this)
 
-        for (px <- rayPosX until (rayPosX + game.pixelsPerRay).min(screenX)) {
-          zBuffer(px) = math.min(zBuffer(px), hit.fixedDistance)
+        if (game.map.isOpaque(texId)) {
+          for (px <- rayPosX until (rayPosX + game.pixelsPerRay).min(screenX)) {
+            if (hit.fixedDistance < zBuffer(px))
+              zBuffer(px) = hit.fixedDistance
+          }
         }
       }
     }
@@ -212,30 +240,32 @@ class View3D(game: Game) extends JPanel{
         val spriteSize = (screenY / perpDist).toInt
 
         val spriteTopY = (screenY / 2) - (spriteSize / 2)
-        val spriteLeftX = spriteScreenX.toInt - (spriteSize / 2) // Eli piirretään sprite spriteLeftX->spriteLeftX+spritesize asti
+        val spriteLeftX = spriteScreenX.toInt - (spriteSize / 2)
 
-        for x <- spriteLeftX until spriteLeftX + spriteSize do { // TODO: OPTIMIZE!!!!
-          if x >= 0 && x < screenX && perpDist < zBuffer(x) then {
-            val texX = ((x - spriteLeftX) * TextureManager.spriteSize / spriteSize)
+        val spriteImg = TextureManager.getSprite(sprite.texId)
 
-            for y <- spriteTopY until spriteTopY + spriteSize do {
-              val texY = ((y - spriteTopY) * TextureManager.spriteSize / spriteSize)
-              val baseColor = TextureManager.getSpritePixel(sprite.texId, texX, texY)
+        val left = spriteLeftX
+        val right = spriteLeftX + spriteSize
+        val top = spriteTopY
+        val bottom = spriteTopY + spriteSize
 
-              if baseColor.getAlpha != 0 then {
-                val color =
-                  sprite match {
-                    case e: Enemy if e.hitFlash =>
-                      val r = math.min(255, baseColor.getRed   * 0.7 + 255 * 0.3).toInt
-                      val g = math.min(255, baseColor.getGreen * 0.7).toInt
-                      val b = math.min(255, baseColor.getBlue  * 0.7).toInt
-                      new java.awt.Color(r, g, b, baseColor.getAlpha)
-                    case _ => baseColor
-                  }
-                bg.setColor(color)
-                bg.drawLine(x, y, x, y)
-              }
-            }
+        val clampedLeft   = left.max(0)
+        val clampedRight  = right.min(screenX)
+        val clampedTop    = top.max(0)
+        val clampedBottom = bottom.min(screenY)
+
+        val dstHeight   = clampedBottom - clampedTop
+        val fullHeight  = spriteSize
+        val texFullH    = TextureManager.spriteSize
+
+        val texStartY = if top < 0 then ((-top).toDouble / fullHeight) * texFullH else 0.0
+
+        val texEndY: Double = if bottom > screenY then texFullH - ((bottom - screenY).toDouble / fullHeight) * texFullH else texFullH
+
+        for (x <- clampedLeft until clampedRight) {
+          if (perpDist < zBuffer(x)) {
+            val texX = ((x - left) * TextureManager.spriteSize / spriteSize)
+            bg.drawImage(spriteImg, x, clampedTop, x + 1, clampedBottom, texX, texStartY.toInt, texX + 1, texEndY.toInt, null)
           }
         }
       }
