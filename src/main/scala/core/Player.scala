@@ -8,6 +8,7 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
   //var dir = 0.3 //radiaaneja
   val moveSpeed = 2.5
   val rotSpeed = 2.0
+  var score = 0
 
   val shootCooldownTime = 0.3
 
@@ -35,11 +36,11 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
     "Did my little baby get scawed?",
     "GO BACK AND TERMINATE THOSE GHOSTLY BEINGS"
   )
-  var finalText: Array[String] = Array(
+  def finalText: Array[String] = Array(
     "Excellent work, the evil has been defeated.",
     "You'll be rewarded with 200C points in the Aalto O1 course.",
     "Good job, private!",
-    s"Oh and btw, you finished with ${score} points.",
+    s"Oh and btw, you finished with ${score} score.",
   )
   var activeDialog: Array[String] = startText
 
@@ -61,7 +62,6 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
   var dead: Boolean = false
   var health = 100
   var healthPercent = 1.0
-  var score = 0
   var ammo = 10
   val damage = 14
 

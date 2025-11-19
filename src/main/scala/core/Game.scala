@@ -185,6 +185,7 @@ class Game(val map: Map, val player: Player) {
   }
 
   def initSpawners(): Unit = {
+    val minRequired = 4
     val spawnableTiles =
     for {
       y <- 0 until map.size - 1
@@ -204,6 +205,13 @@ class Game(val map: Map, val player: Player) {
       }
       if !tooClose then picked :+= (x, y)
     }
+
+    if (picked.length < minRequired) { // katotaan et AINA vähintään 4 spawneria
+      val missing = minRequired - picked.length
+      val extra = randomTiles.filterNot(picked.contains).take(missing)
+      picked ++= extra
+    }
+
     for ((x, y) <- picked) {
       spawnSpawner(x + 0.5, y + 0.5)
       map.updateMap(x, y, 13, 0)

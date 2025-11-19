@@ -56,7 +56,7 @@ class View2D(game: Game) extends JPanel{
     /// DRAW SPRITES
     for (sprite <- game.sprites) {
       sprite match
-        case s: Spawner    => g.setColor(Color.gray)
+        case s: Spawner    => g.setColor(Color.RED)
         case e: Enemy      => g.setColor(Color.ORANGE)
         case b: BossEnemy  => g.setColor(Color.RED)
         case _             => g.setColor(Color.magenta)
