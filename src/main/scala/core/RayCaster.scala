@@ -94,5 +94,6 @@ case class RayHit(x: Double, y: Double, realDistance: Double, fixedDistance: Dou
 case class RayColumn(hits: Array[RayHit]) {
   def firstHit: Option[RayHit] = hits.headOption
   def firstOpaqueHit(map: Map): Option[RayHit] = hits.find(hit => map.isOpaque(hit.texId))
+  def firstSolidHit(map: Map): Option[RayHit] = hits.find(hit => map.isSolid(hit.texId))
   def hasHit: Boolean = hits.nonEmpty
 }

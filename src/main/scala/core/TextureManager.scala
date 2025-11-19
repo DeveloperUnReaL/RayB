@@ -30,6 +30,8 @@ object TextureManager {
     10 -> loadTexture("/assets/textures/tiles/tile334.png"), // fence
     11 -> loadTexture("/assets/textures/tiles/tile1107.png"), // spawnable floor tile
     12 -> loadTexture("/assets/textures/tiles/tile1029.png"),
+    13 -> loadTexture("/assets/textures/tiles/ground_skulls1.png"),
+    14 -> loadTexture("/assets/textures/tiles/ground_blood1.png"),
     100 -> loadTexture("/assets/textures/skybox/skybox.png"),
   )
 
@@ -41,7 +43,16 @@ object TextureManager {
     4 -> loadTexture("/assets/textures/sprites/ghost.png"),
     5 -> loadTexture("/assets/textures/sprites/barrel.png"),
     8 -> loadTexture("/assets/textures/sprites/spawner.png"),
+    9 -> loadTexture("/assets/textures/sprites/boss.png"),
     10 -> loadTexture("/assets/textures/sprites/gun_shoot.png"),
+    15 -> loadTexture("/assets/textures/sprites/bossdead.png"),
+    20 -> loadTexture("/assets/textures/sprites/boneblood.png"),
+    21 -> loadTexture("/assets/textures/sprites/bonepile.png"),
+    22 -> loadTexture("/assets/textures/sprites/deadplant.png"),
+    23 -> loadTexture("/assets/textures/sprites/hanging.png"),
+    24 -> loadTexture("/assets/textures/sprites/lamp.png"),
+    25 -> loadTexture("/assets/textures/sprites/blood.png"),
+    26 -> loadTexture("/assets/textures/sprites/leaf.png"),
   )
 
   def getTexture(id: Int): BufferedImage =

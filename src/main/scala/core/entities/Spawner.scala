@@ -22,7 +22,7 @@ class Spawner(
   var hitFlash: Boolean = false
 
   var spawnable: Boolean = false // activates if player is seen
-  val spawnDelay: Double = 15.0
+  val spawnDelay: Double = 8.0
   var spawnTimer: Double = 0.0
   val spawnChance: Double = 1 //prossaa %
   var spawned: Boolean = false
@@ -56,6 +56,7 @@ class Spawner(
   }
 
   def spawnEnemies(game: Game): Unit = {
+    if dead then return
     val amount = Random.nextInt(3) + 1
 
     for (_ <- 0 until amount) {

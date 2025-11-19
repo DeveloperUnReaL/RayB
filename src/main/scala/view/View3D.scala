@@ -24,6 +24,21 @@ class View3D(game: Game) extends JPanel{
   frame.add(this)
   frame.setVisible(true)
 
+  def tintRed(src: BufferedImage): BufferedImage = {
+    val w = src.getWidth
+    val h = src.getHeight
+    val out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+
+    val g = out.createGraphics()
+    g.drawImage(src, 0, 0, null)
+
+    g.setComposite(AlphaComposite.SrcAtop.derive(0.3f)) // 50% red
+    g.setColor(new Color(1f, 0f, 0f, 1f))
+    g.fillRect(0, 0, w, h)
+    g.dispose()
+
+    out
+  }
 
   def drawSky(g: Graphics2D): Unit = {
     val player = game.player
@@ -242,7 +257,12 @@ class View3D(game: Game) extends JPanel{
         val spriteTopY = (screenY / 2) - (spriteSize / 2)
         val spriteLeftX = spriteScreenX.toInt - (spriteSize / 2)
 
-        val spriteImg = TextureManager.getSprite(sprite.texId)
+        val spriteImg = sprite match { // tyhmääääää
+            case e: Enemy if e.hitFlash => tintRed(TextureManager.getSprite(e.texId))
+            case e: Spawner if e.hitFlash => tintRed(TextureManager.getSprite(e.texId))
+            case e: BossEnemy if e.hitFlash => tintRed(TextureManager.getSprite(e.texId))
+            case _ =>TextureManager.getSprite(sprite.texId)
+          }
 
         val left = spriteLeftX
         val right = spriteLeftX + spriteSize

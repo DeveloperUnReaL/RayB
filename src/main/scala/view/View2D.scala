@@ -3,6 +3,7 @@ package view
 import javax.swing.*
 import java.awt.*
 import core.*
+import core.entities.*
 
 
 class View2D(game: Game) extends JPanel{
@@ -53,9 +54,19 @@ class View2D(game: Game) extends JPanel{
     }
 
     /// DRAW SPRITES
-    g.setColor(Color.RED)
     for (sprite <- game.sprites) {
-      g.fillOval((sprite.x * tileSize -10).toInt, (sprite.y * tileSize - 10).toInt, 20, 20)
+      sprite match
+        case s: Spawner    => g.setColor(Color.gray)
+        case e: Enemy      => g.setColor(Color.ORANGE)
+        case b: BossEnemy  => g.setColor(Color.RED)
+        case _             => g.setColor(Color.magenta)
+
+      g.fillOval(
+        (sprite.x * tileSize - 10).toInt,
+        (sprite.y * tileSize - 10).toInt,
+        20,
+        20
+      )
     }
     /// DRAW PLAYER
     g.setColor(Color.BLUE)

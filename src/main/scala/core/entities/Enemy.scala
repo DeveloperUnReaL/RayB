@@ -10,12 +10,12 @@ class Enemy(
           val map: Map,
           override val texId: Int = 4,
           var hp: Int = 30,
-          val damage: Int = 30,
+          val damage: Int = 20,
           var speed: Double = 1.5,
           override val hitRadius: Double = 0.2,
           val score: Int = 1,
           var dead: Boolean = false,
-          val detectionRadius: Double = 8.0
+          var detectionRadius: Double = 8.0
 ) extends Sprite {
   val hitFlashDuration: Double = 0.35
   var hitFlashTimer: Double = 0.0
@@ -47,6 +47,7 @@ class Enemy(
   }
 
   override def takeDamage(amount: Int): Unit = {
+    detectionRadius = 15.0
     if (!hitFlash) {
       hp -= amount
       hitFlash = true

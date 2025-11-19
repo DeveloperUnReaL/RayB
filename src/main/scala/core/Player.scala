@@ -3,13 +3,13 @@ import scala.math
 import RayCaster.castRay
 import core.entities.*
 
-class Player(var x: Double, var y: Double) {
+class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
 
-  var dir = 0.3 //radiaaneja
+  //var dir = 0.3 //radiaaneja
   val moveSpeed = 2.5
   val rotSpeed = 2.0
 
-  val shootCooldownTime = 0.2
+  val shootCooldownTime = 0.3
 
   var hintText: String = ""
 
@@ -21,24 +21,25 @@ class Player(var x: Double, var y: Double) {
   var textProgress = 0.0
   var currentLine = ""
   var startText: Array[String] = Array(
-    "Listen.",
+    "Listen here private.",
     "You've been sent on a mission.",
     "There appear to be some evil forces around here",
-    "And your task is to get rid of them...",
+    "And your task is to get rid of them.",
     "...",
-    "Im not actually sure how to deal with them",
-    "But try shooting at them I guess...",
-    "Good luck soldier!",
+    "I don't know what will work on those SPECTRAL SCUMS...",
+    "But ummm try that thing you're holding maybe?",
+    "Good luck private!",
   )
   var repeatText: Array[String] = Array(
     "What are you waiting for?",
     "Did my little baby get scawed?",
-    "GO BACK AND TERMINATE THOSE GHOSTS"
+    "GO BACK AND TERMINATE THOSE GHOSTLY BEINGS"
   )
   var finalText: Array[String] = Array(
     "Excellent work, the evil has been defeated.",
     "You'll be rewarded with 200C points in the Aalto O1 course.",
-    "Good job, soldier!",
+    "Good job, private!",
+    s"Oh and btw, you finished with ${score} points.",
   )
   var activeDialog: Array[String] = startText
 
@@ -54,7 +55,6 @@ class Player(var x: Double, var y: Double) {
   var interactable: Boolean = false
   var interactCooldown: Double = 0.0
   var shoot: Boolean = false // SHOOT INPUT
-  ///TODO: Mouse turning?
   var turnLeft: Boolean = false
   var turnRight: Boolean = false
 
@@ -187,7 +187,7 @@ class Player(var x: Double, var y: Double) {
 
             case _ => // nothing
           }
-          interactCooldown = 0.5
+          interactCooldown = 0.4
         case None => ()
       }
       interact = false
@@ -196,7 +196,7 @@ class Player(var x: Double, var y: Double) {
     if (shoot && !this.isShooting && !interact) { // SHOOT INPUT
       val dx = math.cos(dir)
       val dy = -math.sin(dir)
-      castRay(this, dir, map, 1, 1000).firstOpaqueHit(map) match {
+      castRay(this, dir, map, 1, 1000).firstSolidHit(map) match {
         case Some(ray) =>
           hudSpriteId = 10 // Shooting sprite
           enemyHit(ray)
