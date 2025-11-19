@@ -15,5 +15,5 @@ import view.*
 
   game.initSpawners()
 
-  game.start()
+  game.start() // JA KABAM!
 }

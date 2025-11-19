@@ -11,7 +11,7 @@ package core
 
 class Map:
   val grid: Array[Array[Array[Int]]] = /// lvl, x, y  -- lvl 0: floor, lvl 1: walls, lvl 2: ceiling
-    Array(
+    Array( // ei ois ikinä pitäny tehä tätä tällee, ihan hirveetä yrittää tehä tähän muutoksia
       Array( // Floor
         Array(12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12),
         Array(12, 5, 5, 5,12, 5, 5, 5, 5, 5,14, 5, 5,12, 5, 5, 5, 5, 5,12),
@@ -80,7 +80,7 @@ class Map:
       )
     )
 
-  /// the open door 7 is not solid
+  /// 7 on avoin ovi
   def isSolid(tileId: Int): Boolean = tileId match {
     case 0 | 9 | 7 => false
     case _ => true
@@ -97,12 +97,12 @@ class Map:
   }
 
   def isOpaque(tileId: Int): Boolean = tileId match {
-    case 7 | 8 | 10 => false
+    case 7 | 8 | 10 => false // tos on avoin ovi, se kaveri siel seinässä ja aita
     case _ => isVisible(tileId)
   }
 
   def isSpawnable(x: Int, y: Int): Boolean = {
-    // Spawneri voidaa laittaa vaa sellaseen paikkaan missä lattia on 5 ja sen viereset lattiat on 5
+    // Spawneri voidaa laittaa vaa sellaseen paikkaan missä lattia on 5 ja sen viereset lattiat on 5, 11 tai 14
     val id = grid(0)(y)(x)
     if (id != 5 && id != 11 && id != 14) return false
 
@@ -121,7 +121,7 @@ class Map:
       val neighborX = x + dx
       val neighborY = y + dy
       val neighborId = grid(0)(neighborY)(neighborX)
-      neighborId == 5 || neighborId == 11
+      neighborId == 5 || neighborId == 11 || neighborId == 14
     }
   }
 
@@ -129,7 +129,7 @@ class Map:
     grid(lvl)(y.toInt)(x.toInt) = changeTo
   }
 
-  val spawnPos: (Double, Double) = {
+  val spawnPos: (Double, Double) = { // eli mihi pelaaja laitetaan alussa
     val posOption = for {
       (row, i) <- grid(1).zipWithIndex
       (value, j) <- row.zipWithIndex

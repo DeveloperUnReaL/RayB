@@ -9,13 +9,15 @@ object RayCaster {
   val PI4 = math.Pi * 2
 
   private def normalizeAngle(angle: Double): Double = {
+    // moneskoha kulman normalisointifunktio tääki on,
+    // ois vaan pitäny käyttää tätä niis kaikissa.
     var nAngle = angle % PI4
     if nAngle < 0 then nAngle += PI4
     nAngle
   }
 
   private def dist(ax: Double, ay: Double, bx: Double, by: Double) =
-    math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay))
+    math.sqrt((bx - ax)*(bx - ax) + (by - ay)*(by - ay))
 
   def castRay(player: Player, angleIn: Double, map: Map, renderLayer: Int = 1, maxStep: Int = 1024): RayColumn = {
     val ang = normalizeAngle(angleIn)
@@ -24,7 +26,7 @@ object RayCaster {
 
     val hits = ArrayBuffer[RayHit]()
 
-    // Players map square
+    // pelaajan map square
     var mapX = player.x.toInt
     var mapY = player.y.toInt
 
@@ -89,6 +91,9 @@ object RayCaster {
   }
 }
 
+// siis tääki on niin käsittämättömän ovela. Tehään siis lista jokasesta rayn osumasta.
+// jos eka mihin se osuu on normi seinä ni se jää siihen. Jos se osuu eka läpinäkyvään ni se menee siihe listaan ekan
+// ja sit vast se kunnon seinä. Tää hoitaa kaiken transparent juttujen piirtämisen esim iha tosi kevyesti
 
 case class RayHit(x: Double, y: Double, realDistance: Double, fixedDistance: Double, texX: Double, texId: Int = 1)
 case class RayColumn(hits: Array[RayHit]) {

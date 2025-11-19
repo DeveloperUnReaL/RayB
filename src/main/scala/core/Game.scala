@@ -23,7 +23,7 @@ class Game(val map: Map, val player: Player) {
 
   var rays: Array[RayColumn] = Array.empty
 
-  var sprites: Vector[Sprite] = Vector(
+  var sprites: Vector[Sprite] = Vector( // täs on vaa dekoraatio
     SpriteObject(10.5, 8.5, 1, 0.1),
     SpriteObject(3.8, 3.2, 2),
     SpriteObject(3.5, 4, 3),
@@ -88,6 +88,8 @@ class Game(val map: Map, val player: Player) {
         player.score += e.score
       case e: Spawner =>
         player.score += e.score
+      case e: BossEnemy =>
+        player.score += e.score
       case _ =>
     }
     sprites = sprites.filterNot(_ eq sprite)
@@ -96,7 +98,7 @@ class Game(val map: Map, val player: Player) {
   def start(): Unit = {
     running = true
     var lastTime = System.nanoTime()
-    val fps = 144
+    val fps = 60
     val frameTime = 1e9 / fps
 
     new Thread(() =>
@@ -184,7 +186,7 @@ class Game(val map: Map, val player: Player) {
     sprites = sprites :+ new BossEnemy(10.5, 8.5, this)
   }
 
-  def initSpawners(): Unit = {
+  def initSpawners(): Unit = { /// tää on ihan tosi ovela :D
     val minRequired = 4
     val spawnableTiles =
     for {
@@ -206,15 +208,15 @@ class Game(val map: Map, val player: Player) {
       if !tooClose then picked :+= (x, y)
     }
 
-    if (picked.length < minRequired) { // katotaan et AINA vähintään 4 spawneria
+    if (picked.length < minRequired) { // katotaa et aina vähintään 4 spawnerii
       val missing = minRequired - picked.length
       val extra = randomTiles.filterNot(picked.contains).take(missing)
       picked ++= extra
     }
 
     for ((x, y) <- picked) {
-      spawnSpawner(x + 0.5, y + 0.5)
-      map.updateMap(x, y, 13, 0)
+      spawnSpawner(x + 0.5, y + 0.5) // keskelle sitä tilee
+      map.updateMap(x, y, 13, 0) // laitetaa siihe se pähee tile alle
     }
   }
 }

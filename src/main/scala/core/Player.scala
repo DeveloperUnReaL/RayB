@@ -79,7 +79,7 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
   var planeX: Double = 0.0
   var planeY: Double =  0.0
 
-  def checkHurtBox(game: Game): Unit = {
+  def checkHurtBox(game: Game): Unit = { // legit katotaan vaa et onks mikää vihu liian lähellä
     for (sprite <- game.sprites) {
       sprite match {
         case s: Enemy =>
@@ -99,7 +99,7 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
     }
   }
 
-  def takeDamage(amount: Int): Unit = {
+  def takeDamage(amount: Int): Unit = { //yeaouch
     if (!hurtCooldown) {
       health -= amount
       hurtCooldown = true
@@ -117,14 +117,15 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
 
     checkHurtBox(game)
 
-    healthPercent = health / 100.0
+    healthPercent = health / 100.0 // ui piirtämist varten
 
     if health <= 0 then {
       dead = true
       return
     }
 
-    /// CHECK FOR INTERACTION
+    /// CHECK FOR INTERACTION, eli katotaan joka frame et onks edessä joku minkä kaa vois mahollisesti interaktoida
+    /// käytännössä sitä varten et voidaan näyttää se pieni teksti
     val firstHitOpt = castRay(this, dir, map, 1, 1000).firstHit
     val interactionRay: Option[RayHit] = firstHitOpt.filter(_.realDistance <= 1)
     var interactable = false
@@ -149,7 +150,6 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
       interactionRay match {
         case Some(hit) =>
           hit.texId match {
-
             // DOOR
             case 6 | 7 =>
               val newTex = if (hit.texId == 6) 7 else 6
@@ -158,7 +158,7 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
               map.updateMap(updateX, updateY, newTex)
 
             // DIALOG
-            case 8 =>
+            case 8 => // tää oli ihan älyttömän kova järjestelmä kanssa, tätä voi laajentaa vaikka ja miten.
               if (!talking) {
                 talking = true
                 dialogIndex = 0
@@ -200,7 +200,7 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
         case Some(ray) =>
           hudSpriteId = 10 // Shooting sprite
           enemyHit(ray)
-        case None =>
+        case None => // tää on semmoselle tilanteelle et se ray ei osu mihinkään seinään. Vähä tyhmää joo mut :DD
           val enemyHits = game.sprites.flatMap { enemy => rayIntersectsEnemy(dx,dy,enemy).map(dist => (enemy, dist))}
           enemyHits.sortBy(_._2).headOption match {
             case Some((enemy, dist)) =>
@@ -235,8 +235,15 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
         hitFlash = false
       }
     }
+    if (interactCooldown > 0) {
+      interactCooldown -= delta
+      hintText = ""
+      if (interactCooldown < 0) {
+        interactCooldown = 0
+      }
+    }
 
-    def enemyHit(ray: RayHit): Unit = {
+    def enemyHit(ray: RayHit): Unit = { // ja tosiaan tää on siihen et jos siel on seinä siel takana
       val dx = math.cos(dir)
       val dy = math.sin(dir)
 
@@ -270,17 +277,9 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
       else None
     }
 
-    if (interactCooldown > 0) {
-      interactCooldown -= delta
-      hintText = ""
-      if (interactCooldown < 0) {
-        interactCooldown = 0
-      }
-    }
-
-    def updateDialog(delta: Double, lookingAtNPC: Boolean): Unit = {
+    def updateDialog(delta: Double, lookingAtNPC: Boolean): Unit = { // eli se mikä saa sen tekstin sillee tulee vähitellen
       if (!talking) return
-      if !lookingAtNPC then {
+      if !lookingAtNPC then { // pitää keskittyy puhumiseen hei, ei voi kattoo pois :D #käytöstavat
         talking = false
         storyText = ""
         dialogIndex = 0
@@ -302,7 +301,7 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
     updateDialog(delta, lookingAtNPC)
 
     // Jos joku oikeesti lukee tätä koodia ni tää delta on aina sitä varten et se liikkumisnopeus ei riipu siitä miten usein ruutu päivitetään
-    ///TODO: Diagonal movement speed
+    /// teorias vois normalisoida ton nopeuden, ei jaksa.
     if moveForward then {
       val nx = x + dx * moveSpeed * delta
       val ny = y + dy * moveSpeed * delta

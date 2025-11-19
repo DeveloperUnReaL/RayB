@@ -18,13 +18,14 @@ class View3D(game: Game) extends JPanel{
   val skyTexture = TextureManager.getTexture(100)
 
   private val textureCache = scala.collection.mutable.Map[(Int, Int), Image]()
+  /// Tietenki spritet ois ehkä voinu cachettaa myös?
   private val buffer = new BufferedImage(screenX, screenY, BufferedImage.TYPE_INT_RGB)
 
   frame.setSize(screenX + 16, screenY + 38)
   frame.add(this)
   frame.setVisible(true)
 
-  def tintRed(src: BufferedImage): BufferedImage = {
+  def tintRed(src: BufferedImage): BufferedImage = { // sille hitflashille lähinnä
     val w = src.getWidth
     val h = src.getHeight
     val out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
@@ -40,7 +41,7 @@ class View3D(game: Game) extends JPanel{
     out
   }
 
-  def drawSky(g: Graphics2D): Unit = {
+  def drawSky(g: Graphics2D): Unit = { // kaunis tähtitaivashan se :D
     val player = game.player
     val tex = skyTexture
 
@@ -65,7 +66,7 @@ class View3D(game: Game) extends JPanel{
     ang
   }
 
-  private def drawHUD(g: Graphics2D, player: Player): Unit = {
+  private def drawHUD(g: Graphics2D, player: Player): Unit = { // the code speaks for itself >:)
     val cx = screenX / 2
     val cy = screenY / 2
 
@@ -109,7 +110,7 @@ class View3D(game: Game) extends JPanel{
     }
   }
 
-  override def paintComponent(g: Graphics): Unit = { ///HUHHUHHUH. En ois uskonu et joudun kirjottaa sekä buffering että two pass rendering algoritmin :DD
+  override def paintComponent(g: Graphics): Unit = { ///HUHHUHHUH
     super.paintComponent(g)
 
     val bg = buffer.getGraphics.asInstanceOf[Graphics2D]
@@ -121,7 +122,7 @@ class View3D(game: Game) extends JPanel{
     //bg.fillRect(0, 0, screenX, screenY)
     drawSky(bg)
 
-    // Lasketaan et mis kohtaa yhen seinän pystysuoran suikaleen alku ja loppu y on
+    // Lasketaan et mis kohtaa yhen seinän pystysuoran suikaleen alku ja loppu y on tota lattiaa ja kattoo varte
     val wallBounds = Array.ofDim[(Int, Int)](screenX)
     for (i <- game.rays.indices) {
       val rayColumn = game.rays(i)
@@ -182,6 +183,7 @@ class View3D(game: Game) extends JPanel{
 
       y = 0
       while (y < wallTop) { // piirretään katto
+        // tietenki vähä duplicatee mut tää oli niin vaikee että huhhuh.
         val p = (screenY / 2.0) - y
         if (p > 0.0) {
           val rowDistance = posZ / p
@@ -239,7 +241,7 @@ class View3D(game: Game) extends JPanel{
 
     val sortedSprites = game.sprites.sortBy(s => -(s.x - player.x)*(s.x - player.x) - (s.y - player.y)*(s.y - player.y))
 
-    for sprite <- sortedSprites do { // Piirretään siis järjestyksessä kauimmat -> lähimmät
+    for sprite <- sortedSprites do { // Piirretään taas siis järjestyksessä kauimmat -> lähimmät
       val dx = sprite.x - player.x
       val dy = sprite.y - player.y
 
@@ -264,6 +266,8 @@ class View3D(game: Game) extends JPanel{
             case _ =>TextureManager.getSprite(sprite.texId)
           }
 
+        /// renderöin aluks jokasen spriten niinku per näytön pikseli :DD ei ollu kovin nopee
+        /// tää on merkittävä parannus
         val left = spriteLeftX
         val right = spriteLeftX + spriteSize
         val top = spriteTopY
@@ -291,7 +295,7 @@ class View3D(game: Game) extends JPanel{
       }
     }
 
-    bg.setColor(new Color(0.0f, 0.0f, 0.0f, 0.4f))
+    bg.setColor(new Color(0.0f, 0.0f, 0.0f, 0.4f)) // vähä jännittävää fiilistä :D
     bg.fillRect(0, 0, screenX, screenY)
 
     bg.dispose()

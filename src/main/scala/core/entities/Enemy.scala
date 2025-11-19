@@ -16,7 +16,7 @@ class Enemy(
           val score: Int = 1,
           var dead: Boolean = false,
           var detectionRadius: Double = 8.0
-) extends Sprite {
+) extends Sprite { // tää on kyl varmaa vähä tyhmä tapa
   val hitFlashDuration: Double = 0.35
   var hitFlashTimer: Double = 0.0
   var hitFlash: Boolean = false

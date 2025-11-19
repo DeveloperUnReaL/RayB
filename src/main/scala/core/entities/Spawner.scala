@@ -37,7 +37,7 @@ class Spawner(
 
     if (hitFlashTimer <= 0) hitFlash = false
 
-    if (spawnTimer <= 0 && spawnable) { // eli heti ku spawntimer loppuu se yrittää joka frame spawnaa enemyt jollai 2% chancella
+    if (spawnTimer <= 0 && spawnable) { // eli heti ku spawntimer loppuu se yrittää joka frame spawnaa enemyt jollai 1% chancella
       if Random.nextDouble() > spawnChance * delta then return
       println(spawnChance * delta)
       spawnEnemies(game)
@@ -57,7 +57,7 @@ class Spawner(
 
   def spawnEnemies(game: Game): Unit = {
     if dead then return
-    val amount = Random.nextInt(3) + 1
+    val amount = Random.nextInt(3) + 2
 
     for (_ <- 0 until amount) {
       val eX = this.x + ((Random.nextDouble() * 3) - 0.9)
@@ -72,7 +72,7 @@ class Spawner(
     dead = true
   }
 
-  def detectPlayer(delta: Double, player: Player): Unit = {
+  def detectPlayer(delta: Double, player: Player): Unit = { // tässäki on tää sama funktio, ei oo fiksusti tehty
     val dx = player.x - x
     val dy = player.y - y
 

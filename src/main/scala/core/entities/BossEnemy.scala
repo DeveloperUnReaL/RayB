@@ -35,20 +35,20 @@ class BossEnemy(
     actionTimer -= delta
     if (hitFlashTimer <= 0) hitFlash = false
 
-    if (detectionRadius > 10) {
+    if (detectionRadius > 10) { // jos niinku ns hereillä/agrottu
       if dead then return
       if (actionTimer <= 0) {
         speed = 1.0
         val chance = Random.nextDouble()
-        if (!detectPlayer && chance < 0.8) {
+        if (!detectPlayer && chance < 0.8) { // cheese esto :D
           teleport(player, 3)
-        } else if (chance < 0.2) {
-          speed = 2.0
+        } else if (chance < 0.2) { // lunge
+          speed = 2.3
           actionTimer = actionInterval - 2
-        } else if (chance < 0.6) {
+        } else if (chance < 0.6) { // spawnaus
           spawnEnemies()
           actionTimer = actionInterval
-        } else if (chance < 0.7) {
+        } else if (chance < 0.7) { // jekku :DD
           teleport(player, 3)
           actionTimer = actionInterval - 2
         }
@@ -79,7 +79,7 @@ class BossEnemy(
     if map.notSolid(x,ny,1) then y = ny //Collision
   }
 
-  def detectPlayer(delta: Double, player: Player): Unit = {
+  def detectPlayer(delta: Double, player: Player): Unit = { //tekee käytännös saman ku toi LOS funktio mut cant be arsed vaihtaa enää
     val dx = player.x - x
     val dy = player.y - y
 
@@ -135,7 +135,7 @@ class BossEnemy(
   private def hasLineOfSight(fromX: Double, fromY: Double, toX: Double, toY: Double): Boolean = {
     val dir = math.atan2(toY - fromY, toX - fromX)
 
-    val valiaikapate = new Player(fromX, fromY, dir)
+    val valiaikapate = new Player(fromX, fromY, dir) // leikitään sitä pelaajaa
     val distToTarget = math.sqrt((toX - fromX)*(toX - fromX) + (toY - fromY)*(toY - fromY))
     val hit = RayCaster.castRay(valiaikapate, dir, map, 1, 1000).firstOpaqueHit(map)
 
@@ -157,7 +157,7 @@ class BossEnemy(
         yield (x + dx, y + dy)
       )
 
-    // Etitää et mihi vois teleporttaa
+    // Etitää et mihi vois spawnata kaverin :D
     println(candidates)
     for ((tx, ty) <- candidates) {
       val ix = math.max(0, math.min(tx.toInt, map.size - 1)) // out of bounds chekki
