@@ -57,5 +57,22 @@ GOOD JOB! You finished the game :D
 - Then, the player is drawn with a red direction line.
 
 
-## Dev Diary - (Finnish)
-TO BE WRITTEN, I have spent almost a hundred hours during two weeks making this project, and I want to rest now.
+## TODO:
+- sounds
+- main menu
+- window rescaling
+- settings
+- some kind of shaders?
+- better decoration
+- more mob types
+- balancing
+- animations
+
+## struggles and stuff
+Storytime.
+
+Ihan alussa ku nää kaikki ideat oli auki, mä mietin vaan että ois kiva tehä jotain vähän visuaalisempaa ku iha vaan perus tekstiseikkailu. Mulla oli ollu suunnitelmana tehä vapaa-ajalla tommonen raycaster mut rustilla, mut mietin että tää ois ihan täydellinen hetki kokeilla suorittaa joku vähän isompi projekti. Muutenki tää oli pakko saada valmiiks ku oli semi tiukka deadline, ni päätin sit vähän haastaa itteeni. 
+
+Eka juttu mitä mä tein sit ku oli saanu projektin kasaan oli sen rakenteen hahmottaminen. Mä oon tehy aikasemmin useitaki pelejä (en toki ihan näin perusteellisesti), niin mulla oli jo hyvä idea siitä miten tää kannattais jakaa komponentteihin. Se mikä oli aluks kyllä vähän hankalaa oli se että miten mä saan ees asioita piirrettyä näytölle, mut tääki ratkes tekoälyn konsultoinnin kautta. Javassa/Scalassa oli näköjään oma kirjasto, millä pysty piirtää tämmösii simppeleitä kuvia ja muotoja ruudulle. No tällä mä sit aloin aluks tekemään tota 2D- näkymää, joka sit jeesais tulevaisuudessa devaamisen kanssa jne. Kartta mulla tuli aika luonnostaan, mä olin meinaa aikasemminki tehy tämmösen karttapohjasen projektin.  Nyt mä vaan sit visualisoin sen tällee vähän fiinimmin. Tän kartan jälkeen sit alko tää oikee rayCasterin koodaaminen. Tää oliki vähän vaikeempi prosessi, sillä jonkun ray:n osuman laskeminen ees 2D-maailmassa on oikeesti aika vaikeeta.
+
+Aluks yritin käyttää semmosta menetelmää joka ampuuki kaks rayta: Eka ray kattoo horisontaalisia seinän palasia ja osuu vaan niihin, ja toka kattoo sit vertikaalisia seinän palasia. Tän jälkeen vertaillaan että kumpi on lyhyempi ja otetaan sit se käyttöön. Mut tässä oli useita ongelmia. Tää oli vähän monimutkasempi kun mitä ois tarvinn
