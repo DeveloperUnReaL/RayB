@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component LANGUAGE_LEVEL="JDK_21" inheritJdk="true">
+	<exclude-output/>
+	<contentEntry url="file://$MODULE_DIR$/../../../src/main"/>
+	<contentEntry url="file://$MODULE_DIR$/../../../target/scala-3.3.7/resource_managed/main"/>
+	<contentEntry url="file://$MODULE_DIR$/../../../target/scala-3.3.7/src_managed/main"/>
+	<levels>
+		<level name="sbt: scala-sdk-3.3.7" value="project"/>
+		<level name="sbt: org.scala-lang:scala3-library_3:3.3.7:jar" value="project"/>
+		<level name="sbt: org.scala-lang:scala-library:2.13.16:jar" value="project"/>
+	</levels>
+</component>

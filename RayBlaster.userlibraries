@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eclipse-userlibraries>
+  <library name="sbt: org.scala-lang:scala3-library_3:3.3.7:jar">
+    <archive path="C:/Users/aarre.salminen_kuori/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-lang/scala3-library_3/3.3.7/scala3-library_3-3.3.7.jar" />
+  </library>
+  <library name="sbt: scala-sdk-3.3.7" />
+  <library name="sbt: org.scala-lang:scala-library:2.13.16:jar">
+    <archive path="C:/Users/aarre.salminen_kuori/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.16/scala-library-2.13.16.jar" />
+  </library>
+  <library name="scala-sdk-3.7.3">
+    <archive path="C:/Users/aarre.salminen_kuori/.ivy2/cache/org.scala-lang/scala3-library_3/jars/scala3-library_3-3.7.3.jar" />
+    <archive path="C:/Users/aarre.salminen_kuori/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.13.16.jar" />
+  </library>
+</eclipse-userlibraries>
+
