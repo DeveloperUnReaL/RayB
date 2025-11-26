@@ -70,16 +70,21 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
   val hurtCooldownDuration = 1
   var hurtCooldownTimer: Double = 0.0
   var hurtCooldown: Boolean = false
+
   val hitFlashDuration: Double = 0.2
   var hitFlashTimer: Double = 0.0
   var hitFlash: Boolean = false
+
+  var healFlashDuration: Double = 0.2
+  var healFlashTimer: Double = 0.0
+  var healFlash: Boolean = false
 
   var dx: Double = math.cos(dir)
   var dy: Double = math.sin(dir)
   var planeX: Double = 0.0
   var planeY: Double =  0.0
 
-  def checkHurtBox(game: Game): Unit = { // legit katotaan vaa et onks mikää vihu liian lähellä
+  def checkHurtBox(game: Game): Unit = { // legit katotaan vaa et onks mikää vihu liian lähellä /// miks oon tehy tän näin tyhmästi???
     for (sprite <- game.sprites) {
       sprite match {
         case s: Enemy =>
@@ -93,7 +98,13 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
           val dy = s.y - y
           val distance = math.sqrt(dx*dx + dy*dy)
 
-          if (distance <= s.hitRadius) {takeDamage(10)}
+          if (distance <= s.hitRadius) {takeDamage(s.damage)}
+        case s: Orb =>
+          val dx = s.x - x
+          val dy = s.y - y
+          val distance = math.sqrt(dx*dx + dy*dy)
+
+          if (distance <= s.hitRadius) {takeDamage(s.damage)}
         case _ => ()
       }
     }
@@ -107,6 +118,12 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
       hitFlash = true
       hitFlashTimer = hitFlashDuration
     }
+  }
+
+  def heal(amount: Int): Unit = {
+    health = math.min(health + amount, 100) /// miks mulla ei oo maxhp variablee??
+    healFlash = true
+    healFlashTimer = healFlashDuration
   }
 
   def update(delta: Double, map: Map, game: Game): Unit = {
@@ -233,6 +250,13 @@ class Player(var x: Double, var y: Double, var dir: Double = 0.3) {
       if (hitFlashTimer < 0) {
         hitFlashTimer = 0
         hitFlash = false
+      }
+    }
+    if (healFlashTimer > 0) {
+      healFlashTimer -= delta
+      if (healFlashTimer < 0) {
+        healFlashTimer = 0
+        healFlash = false
       }
     }
     if (interactCooldown > 0) {

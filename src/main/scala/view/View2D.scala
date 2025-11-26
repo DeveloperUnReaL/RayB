@@ -12,7 +12,7 @@ class View2D(game: Game) extends JPanel{
 
   val screenSize = 600
 
-  frame.setSize(screenSize, screenSize) //Always square :D
+  frame.setSize(screenSize + 16, screenSize + 38) //Always square :D
   frame.add(this)
   frame.setVisible(true)
 
@@ -46,7 +46,7 @@ class View2D(game: Game) extends JPanel{
 
 
     // DRAW RAYS
-    g.setColor(Color.GREEN)
+    g.setColor(new Color(0.0f, 1f, 0.0f, 0.1f))
     val px = (player.x * tileSize).toInt
     val py = (player.y * tileSize).toInt
     for (rayColumn <- game.rays) {
@@ -59,7 +59,9 @@ class View2D(game: Game) extends JPanel{
         case s: Spawner    => g.setColor(Color.RED)
         case e: Enemy      => g.setColor(Color.ORANGE)
         case b: BossEnemy  => g.setColor(Color.RED)
-        case _             => g.setColor(Color.magenta)
+        case o: Orb        => g.setColor(Color.magenta)
+        case h: HealthBag  => g.setColor(Color.GREEN)
+        case _             => g.setColor(Color.GRAY)
 
       g.fillOval(
         (sprite.x * tileSize - 10).toInt,

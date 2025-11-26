@@ -58,12 +58,18 @@ class Spawner(
   def spawnEnemies(game: Game): Unit = {
     if dead then return
     val amount = Random.nextInt(3) + 2
+    var spawned = 0
 
-    for (_ <- 0 until amount) {
+    while (spawned < amount) {
       val eX = this.x + ((Random.nextDouble() * 3) - 0.9)
       val eY = this.y + ((Random.nextDouble() * 3) - 0.9)
 
-      game.spawnEnemy(eX, eY)
+      val ix = math.max(0, math.min(eX.toInt, map.size - 1))
+      val iy = math.max(0, math.min(eY.toInt, map.size - 1))
+
+      if map.notSolid(ix, iy, 1) then
+        game.spawnEnemy(eX, eY)
+        spawned += 1
     }
   }
 

@@ -24,7 +24,9 @@ class Game(val map: Map, val player: Player) {
   var rays: Array[RayColumn] = Array.empty
 
   var sprites: Vector[Sprite] = Vector( // täs on vaa dekoraatio
-    SpriteObject(10.5, 8.5, 1, 0.1),
+    SpriteObject(10.5, 8.5, 29, 0.1),
+    SpriteObject(9.8, 8.0, 29, 0.1),
+    SpriteObject(11, 9.5, 29, 0.1),
     SpriteObject(3.8, 3.2, 2),
     SpriteObject(3.5, 4, 3),
     SpriteObject(1.3, 4.8, 5),
@@ -72,11 +74,14 @@ class Game(val map: Map, val player: Player) {
     SpriteObject(2.1, 15.7, 25),
     SpriteObject(3.1, 16.2, 25),
     //new Enemy(10.5, 8.5, player, map),
+    new HealthBag(3.5, 3.5, this)
   )
 
   def addView(view: JPanel) = views :+= view
 
   def spawnEnemy(x: Double, y: Double): Unit = sprites = sprites :+ new Enemy(x, y, player, map)
+  def spawnOrb(x: Double, y: Double, dir: Double): Unit = sprites = sprites :+ new Orb(x, y, this, direction = dir)
+  def spawnHealthBag(x: Double, y: Double): Unit = sprites = sprites :+ new HealthBag(x, y, this)
   def spawnSprite(x: Double, y: Double, texId: Int): Unit = sprites :+= SpriteObject(x, y, texId)
 
   def spawnSpawner(x: Double, y: Double): Unit = sprites = sprites :+ new Spawner(x, y, this)
@@ -138,9 +143,14 @@ class Game(val map: Map, val player: Player) {
   def checkGameState(): Unit = {
     for (sprite <- sprites) { // check for dead enemies
       sprite match {
-        case s: Enemy => if s.dead then removeSprite(s)
+        case s: Enemy => if s.dead then {
+          if (util.Random.nextDouble() < 0.1) {spawnHealthBag(s.x, s.y)} /// 10% chance spawnaa hpbag
+          removeSprite(s)
+        }
         case s: Spawner => if s.dead then removeSprite(s)
         case s: BossEnemy => if s.dead then bossKilled = true
+        case s: Orb => if s.dead then removeSprite(s)
+        case s: HealthBag => if s.dead then removeSprite(s)
         case _ => ()
       }
     }

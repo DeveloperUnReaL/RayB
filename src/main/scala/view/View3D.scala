@@ -66,6 +66,8 @@ class View3D(game: Game) extends JPanel{
     ang
   }
 
+
+
   private def drawHUD(g: Graphics2D, player: Player): Unit = { // the code speaks for itself >:)
     val cx = screenX / 2
     val cy = screenY / 2
@@ -80,6 +82,18 @@ class View3D(game: Game) extends JPanel{
       g.drawString(s"Score: ${player.score}", cx - 50, (screenY/1.5).toInt)
       return
     }
+
+    game.sprites.collectFirst { case b: BossEnemy => b } match // bossbar ettei oo iha epäreilu
+      case Some(boss) if (game.gameState == 2) =>
+        g.setColor(Color.BLACK)
+        g.fillRect(cx - 200-2, 100-2, 400+4, 30+4)
+        g.setColor(Color.RED)
+        g.fillRect(cx - 200, 100, (400 * boss.hpPercent).toInt, 30)
+
+        g.setColor(Color.WHITE)
+        g.setFont(new Font("Arial", Font.BOLD, 30))
+        g.drawString(s"Mother Ghost", cx - 90, 80)
+      case _ => ()
 
     val gunScale = 8
 
@@ -108,7 +122,13 @@ class View3D(game: Game) extends JPanel{
       g.setColor(new Color(1f, 0.1f, 0.1f, 0.3f))
       g.fillRect(0, 0, screenX, screenY)
     }
+    if (player.healFlash) {
+      g.setColor(new Color(0.1f, 1f, 0.1f, 0.3f))
+      g.fillRect(0, 0, screenX, screenY)
+    }
   }
+
+
 
   override def paintComponent(g: Graphics): Unit = { ///HUHHUHHUH
     super.paintComponent(g)
@@ -295,7 +315,7 @@ class View3D(game: Game) extends JPanel{
       }
     }
 
-    bg.setColor(new Color(0.0f, 0.0f, 0.0f, 0.4f)) // vähä jännittävää fiilistä :D
+    bg.setColor(new Color(0.0f, 0.0f, 0.0f, 0.2f)) // vähä jännittävää fiilistä :D
     bg.fillRect(0, 0, screenX, screenY)
 
     bg.dispose()

@@ -53,6 +53,9 @@ object TextureManager {
     24 -> loadTexture("/assets/textures/sprites/lamp.png"),
     25 -> loadTexture("/assets/textures/sprites/blood.png"),
     26 -> loadTexture("/assets/textures/sprites/leaf.png"),
+    27 -> loadTexture("/assets/textures/sprites/ball.png"),
+    28 -> loadTexture("/assets/textures/sprites/hpbag.png"),
+    29 -> loadTexture("/assets/textures/sprites/deadtree.png"),
   )
 
   def getTexture(id: Int): BufferedImage =

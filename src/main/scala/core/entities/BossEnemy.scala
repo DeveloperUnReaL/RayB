@@ -23,6 +23,8 @@ class BossEnemy(
   var hitFlashTimer: Double = 0.0
   var hitFlash: Boolean = false
 
+  def hpPercent: Double = hp / 500.0
+
   var detectPlayer: Boolean = false
 
   var actionTimer: Double = 0.0
@@ -42,15 +44,26 @@ class BossEnemy(
         val chance = Random.nextDouble()
         if (!detectPlayer && chance < 0.8) { // cheese esto :D
           teleport(player, 3)
-        } else if (chance < 0.2) { // lunge
+        } else if (chance < 0.15) { // lunge 0.15
           speed = 2.3
           actionTimer = actionInterval - 2
-        } else if (chance < 0.6) { // spawnaus
+        } else if (chance < 0.35) { // spawnaus 0.2 x2 :D
+          spawnEnemies()
           spawnEnemies()
           actionTimer = actionInterval
-        } else if (chance < 0.7) { // jekku :DD
+        } else if (chance < 0.65) { // orb 0.3
+          shoot()
+          speed = 0.5
+          actionTimer = actionInterval - 2
+        } else if (chance < 0.75) { // jekku :DD 0.1
           teleport(player, 3)
           actionTimer = actionInterval - 2
+        } else if (chance < 0.85) { // peruutus :DDD 0.1
+          speed = -0.8
+          actionTimer = actionInterval - 2.5
+        } else { // paikoillaa 0.15
+          speed = 0
+          actionTimer = actionInterval - 3
         }
       }
     }
@@ -158,7 +171,7 @@ class BossEnemy(
       )
 
     // Etitää et mihi vois spawnata kaverin :D
-    println(candidates)
+    //println(candidates)
     for ((tx, ty) <- candidates) {
       val ix = math.max(0, math.min(tx.toInt, map.size - 1)) // out of bounds chekki
       val iy = math.max(0, math.min(ty.toInt, map.size - 1))
@@ -167,5 +180,15 @@ class BossEnemy(
         return
       }
     }
+  }
+
+  def shoot(): Unit = {
+    val px = player.x
+    val py = player.y
+
+    val dir = math.atan2(py - y, px - x)
+    game.spawnOrb(x, y, dir)
+    game.spawnOrb(x, y, dir + 0.15)
+    game.spawnOrb(x, y, dir - 0.15)
   }
 }
