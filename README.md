@@ -1,5 +1,6 @@
 # RayBlaster 0.1
 Aalto O1 course project (+a personal project)
+101054230
 
 Table of contents:
 - quick introduction
@@ -38,12 +39,15 @@ GOOD JOB! You finished the game :D
 
 ## Technical stuff / Enemy behavior
 - The spawners activate when they can see the player (from any distance). The spawner spawns 2-4 enemies every 8 seconds or so.
-- The enemy has a detection distance, but it also relies on line of sight. If the player goes behind a wall, the enemy forgets about it and starts roaming around.
-- The boss chooses between 4 actions about every 2-4 seconds or so:
-  1. Spawning a normal enemy,
+- The enemy has a detection distance, but it also relies on line of sight. If the player goes behind a wall, the enemy forgets about it and starts roaming around. When the enemy dies, it has a 10% chance to drop a healing blob
+- The boss chooses between a few actions about every 2-4 seconds or so:
+  1. Spawning 2 normal enemies,
   2. Rushing the player with 2x speed,
   3. Teleporting near the player,
-  4. doing nothing.
+  4. Shooting orbs at the player,
+  5. Stopping for a moment,
+  6. Backing away,
+  7. doing nothing.
   IF the boss doesn't have LOS when it chooses an action, It automatically teleports near the player to an empty square with a LOS to the player.
 
 ### What you see in the 2D-view
@@ -53,7 +57,8 @@ GOOD JOB! You finished the game :D
     1. Spawner is colored RED
     2. Enemy is colored Orange
     3. Boss is colored RED
-    4. normal SpriteObject is colored PINK
+    4. HealthBlob is colored GREEN
+    5. normal SpriteObject is colored GRAY
 - Then, the player is drawn with a red direction line.
 
 
